@@ -1,6 +1,7 @@
 package com.schorsche94.medi_track.telegram_bot;
 
 import com.schorsche94.medi_track.api.service.MedicationService;
+import com.schorsche94.medi_track.api.service.model.Medication;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +42,40 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             if (messageText.equals("/start")) {
                 sendMainMenu(chatId);
             } else if(messageText.equals("/show_today_medication_list")) {
-                medicationService.getMedicationList();
+               var medications = medicationService.getMedicationList();
+               if(medications.isEmpty()) {
+                   sendMessage(chatId, "You don`t have medications for today.");
+               } else {
+                   StringBuilder sb = new StringBuilder();
+                   sb.append("\uD83D\uDC8A Medication list for today:\n\n");
+
+                   for (Medication m : medications) {
+                       sb.append("🔹 ")
+                               .append(m.getName())
+                               .append("\n");
+
+                       if (m.getDescription() != null && !m.getDescription().isEmpty()) {
+                           sb.append("   ")
+                                   .append(m.getDescription())
+                                   .append("\n");
+                       }
+
+                       if (m.getDoze() != null) {
+                           sb.append("  Doze: ").append(m.getDoze()).append(" ").append(m.getDozeType())
+                                   .append("\n");
+                       }
+
+                       if (m.getMedicationForm() != null) {
+                           sb.append("  Medication type: ")
+                                   .append(m.getMedicationForm())
+                                   .append("\n");
+                       }
+
+                       sb.append("\n");
+                   }
+
+                   sendMessage(chatId, sb.toString());
+               }
             } else if(messageText.equals("/menu_medication")) {
                 sendMenuMedication(chatId);
             } else {
@@ -50,6 +84,21 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
         }
+    }
+
+    private InlineKeyboardMarkup createInlineListKeyboard(List<Medication> medications) {
+        List<InlineKeyboardRow> rows = new ArrayList<>();
+
+        for (Medication m : medications) {
+            InlineKeyboardButton button = InlineKeyboardButton.builder()
+                    .text(m.getName() + " - " + m.getDescription() + " - " + m.getDoze() + " - " + m.getDozeType())
+                    .callbackData("medication_" + m.getId())
+                    .build();
+            InlineKeyboardRow row1 = new InlineKeyboardRow(button);
+            rows.add(row1);
+        }
+
+        return InlineKeyboardMarkup.builder().keyboard(rows).build();
     }
 
     @SneakyThrows
