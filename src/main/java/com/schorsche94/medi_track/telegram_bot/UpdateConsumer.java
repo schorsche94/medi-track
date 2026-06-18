@@ -11,12 +11,11 @@ import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Component
@@ -59,9 +58,24 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
                 .text("Medication keyboard")
                 .chatId(chatId)
                 .build();
-        List<KeyboardRow> keyboardRows = List.of(new KeyboardRow("Add medication", "Edit medication", "Delete medication", "Show all medications"));
-        ReplyKeyboardMarkup markup = new ReplyKeyboardMarkup(keyboardRows);
-        sendMessage.setReplyMarkup(markup);
+
+        List<InlineKeyboardRow> rowsInline = new ArrayList<>();
+
+        InlineKeyboardButton button1 =  InlineKeyboardButton.builder().text("Add medication").callbackData("add_medication").build();
+        InlineKeyboardButton button2 =  InlineKeyboardButton.builder().text("Edit medication").callbackData("edit_medication").build();
+        InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
+
+        InlineKeyboardButton button3 =  InlineKeyboardButton.builder().text("Delete medication").callbackData("delete_medication").build();
+        InlineKeyboardButton button4 =  InlineKeyboardButton.builder().text("Show all medications").callbackData("show_all_medications").build();
+        InlineKeyboardRow row2 = new InlineKeyboardRow(button3, button4);
+
+        rowsInline.add(row1);
+        rowsInline.add(row2);
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
+
         telegramClient.execute(sendMessage);
     }
 
