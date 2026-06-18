@@ -1,6 +1,5 @@
-package com.schorsche94.medi_track;
+package com.schorsche94.medi_track.telegram_bot;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
