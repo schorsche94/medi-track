@@ -1,7 +1,7 @@
 package com.schorsche94.medi_track.telegram_bot;
 
-import com.schorsche94.medi_track.api.service.MedicationService;
-import com.schorsche94.medi_track.api.service.model.Medication;
+import com.schorsche94.medi_track.service.MedicationService;
+import com.schorsche94.medi_track.domain.model.Medicine;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -54,14 +54,14 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         }
     }
 
-    private void prepareAndSendListToTG(List<Medication> medications, Long chatId) {
+    private void prepareAndSendListToTG(List<Medicine> medications, Long chatId) {
         if(medications.isEmpty()) {
             sendMessage(chatId, "You don`t have medications for today.");
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append("\uD83D\uDC8A Medication list for today:\n\n");
 
-            for (Medication m : medications) {
+            for (Medicine m : medications) {
                 sb.append("🔹 ")
                         .append(m.getName())
                         .append("\n");
@@ -90,10 +90,10 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         }
     }
 
-    private InlineKeyboardMarkup createInlineListKeyboard(List<Medication> medications) {
+    private InlineKeyboardMarkup createInlineListKeyboard(List<Medicine> medications) {
         List<InlineKeyboardRow> rows = new ArrayList<>();
 
-        for (Medication m : medications) {
+        for (Medicine m : medications) {
             InlineKeyboardButton button = InlineKeyboardButton.builder()
                     .text(m.getName() + " - " + m.getDescription() + " - " + m.getDoze() + " - " + m.getDozeType())
                     .callbackData("medication_" + m.getId())
