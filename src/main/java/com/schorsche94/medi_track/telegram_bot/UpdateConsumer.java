@@ -1,5 +1,6 @@
 package com.schorsche94.medi_track.telegram_bot;
 
+import com.schorsche94.medi_track.domain.enums.MedicationForm;
 import com.schorsche94.medi_track.service.MedicationService;
 import com.schorsche94.medi_track.domain.model.Medicine;
 import lombok.SneakyThrows;
@@ -11,19 +12,28 @@ import org.telegram.telegrambots.longpolling.util.LongPollingSingleThreadUpdateC
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.CallbackQuery;
 import org.telegram.telegrambots.meta.api.objects.Update;
+import org.telegram.telegrambots.meta.api.objects.User;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 @Component
 public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     private final TelegramClient telegramClient;
 
     private String token;
+    private Map<Long, Conversation> conversations = new ConcurrentHashMap<>();
 
     @Autowired
     private MedicationService medicationService;
@@ -39,6 +49,14 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         if (update.hasMessage()) {
             String messageText = update.getMessage().getText();
             Long chatId = update.getMessage().getChatId();
+
+            Conversation conversation = conversations.get(chatId);
+
+            if (conversation != null && conversation.getState() != ConversationState.NONE) {
+                handleConversation(chatId, messageText, conversation);
+                return;
+            }
+
             if (messageText.equals("/start")) {
                 sendMainMenu(chatId);
             } else if(messageText.equals("/show_today_medication_list") || messageText.equals("show_today_medication_list")) {
@@ -51,6 +69,56 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             }
         } else if (update.hasCallbackQuery()) {
             handleCallbackQuery(update.getCallbackQuery());
+        }
+    }
+
+    private void handleConversation(Long chatId, String text, Conversation conversation) {
+        switch (conversation.getState()) {
+
+            case WAITING_NAME -> {
+                conversation.setName(text);
+                conversation.setState(ConversationState.WAITING_DESCRIPTION);
+
+                sendMessage(chatId, "Enter medication description:");
+            }
+
+            case WAITING_DESCRIPTION -> {
+                conversation.setDescription(text);
+                conversation.setState(ConversationState.WAITING_DOZE);
+
+                sendMessage(chatId, "Enter medication doze:");
+            }
+
+            case WAITING_DOZE -> {
+                try {
+                    conversation.setDoze(new BigDecimal(text));
+                } catch (NumberFormatException e) {
+                    conversation.setState(ConversationState.WAITING_DOZE);
+                    sendMessage(chatId, "Please enter a valid number");
+                }
+                conversation.setState(ConversationState.WAITING_DOZE_TYPE);
+
+                sendMessage(chatId, "Enter medication doze type:");
+            }
+
+            case WAITING_DOZE_TYPE -> {
+                conversation.setDozeType(text);
+                conversation.setState(ConversationState.WAITING_MEDICATION_FORM);
+
+                sendMenuMedicationForm(chatId);
+            }
+
+            case WAITING_MEDICATION_FORM -> {
+                conversation.setMedicationForm(MedicationForm.valueOf(text));
+                conversation.setState(ConversationState.NONE);
+
+                hideKeyboard(chatId, "Medication added!");
+            }
+
+            default -> {
+                sendMessage(chatId, "Something went wrong");
+                conversation.setState(ConversationState.NONE);
+            }
         }
     }
 
@@ -106,6 +174,20 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     }
 
     @SneakyThrows
+    private void hideKeyboard(Long chatId, String message) {
+        SendMessage sendMessage = SendMessage.builder()
+                .text(message)
+                .chatId(chatId)
+                .build();
+
+        ReplyKeyboardRemove keyboardRemove = new ReplyKeyboardRemove(true);
+
+        sendMessage.setReplyMarkup(keyboardRemove);
+
+        telegramClient.execute(sendMessage);
+    }
+
+    @SneakyThrows
     private void sendMenuMedication(Long chatId) {
         SendMessage sendMessage = SendMessage.builder()
                 .text("Medication keyboard")
@@ -132,6 +214,48 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         telegramClient.execute(sendMessage);
     }
 
+    @SneakyThrows
+    private void sendMenuMedicationForm(Long chatId) {
+        SendMessage sendMessage = SendMessage.builder()
+                .text("Enter medication form:")
+                .chatId(chatId)
+                .build();
+
+        List<KeyboardRow> rowsInline = new ArrayList<>();
+
+        KeyboardButton button1 =  KeyboardButton.builder().text("TABLET").build();
+        KeyboardButton button2 =  KeyboardButton.builder().text("CAPSULE").build();
+        KeyboardRow row1 = new KeyboardRow(button1, button2);
+
+        KeyboardButton button3 =  KeyboardButton.builder().text("DROPS").build();
+        KeyboardButton button4 =  KeyboardButton.builder().text("SUPPOSITORY").build();
+        KeyboardRow row2 = new KeyboardRow(button3, button4);
+
+        KeyboardButton button5 =  KeyboardButton.builder().text("SYRUP").build();
+        KeyboardButton button6 =  KeyboardButton.builder().text("OINTMENT").build();
+        KeyboardRow row3 = new KeyboardRow(button5, button6);
+
+        KeyboardButton button7 =  KeyboardButton.builder().text("CREAM").build();
+        KeyboardButton button8 =  KeyboardButton.builder().text("SPRAY").build();
+        KeyboardRow row4 = new KeyboardRow(button7, button8);
+
+        KeyboardButton button9 =  KeyboardButton.builder().text("GEL").build();
+        KeyboardButton button10 =  KeyboardButton.builder().text("INJECTION").build();
+        KeyboardRow row5 = new KeyboardRow(button9, button10);
+
+        rowsInline.add(row1);
+        rowsInline.add(row2);
+        rowsInline.add(row3);
+        rowsInline.add(row4);
+        rowsInline.add(row5);
+
+        ReplyKeyboardMarkup markupInline = new ReplyKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
+
+        telegramClient.execute(sendMessage);
+    }
+
     private void handleCallbackQuery(CallbackQuery callbackQuery) {
         var data = callbackQuery.getData();
         var chatId = callbackQuery.getFrom().getId();
@@ -142,8 +266,18 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
                 prepareAndSendListToTG(medications, chatId);
             }
             case "menu_medication" -> sendMenuMedication(chatId);
+            case "add_medication" -> addMedication(chatId, user);
             default -> sendMessage(chatId, "Unknown operation!");
         }
+    }
+
+    private void addMedication(Long chatId, User user) {
+        Conversation conversation = new Conversation();
+        conversation.setState(ConversationState.WAITING_NAME);
+
+        conversations.put(chatId, conversation);
+
+        sendMessage(chatId, "Enter medication name:");
     }
 
     @SneakyThrows
