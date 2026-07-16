@@ -1,13 +1,10 @@
 package com.schorsche94.medi_track.telegram_bot.service;
 
 import com.schorsche94.medi_track.telegram_bot.UpdateConsumer;
-import com.schorsche94.medi_track.telegram_bot.config.TelegramBotConfig;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.telegram.telegrambots.longpolling.interfaces.LongPollingUpdateConsumer;
 import org.telegram.telegrambots.longpolling.starter.SpringLongPollingBot;
-
-import static com.schorsche94.medi_track.telegram_bot.config.TelegramBotConfig.botToken;
 
 
 @Component
@@ -15,13 +12,16 @@ public class TelegramBotMessageService implements SpringLongPollingBot {
 
     private final UpdateConsumer updateConsumer;
 
-    public TelegramBotMessageService(UpdateConsumer updateConsumer) {
+    private final String token;
+
+    public TelegramBotMessageService(UpdateConsumer updateConsumer, @Value("${telegram.bot.token}") String token) {
         this.updateConsumer = updateConsumer;
+        this.token = token;
     }
 
     @Override
     public String getBotToken() {
-        return botToken;
+        return token;
     }
 
     @Override
