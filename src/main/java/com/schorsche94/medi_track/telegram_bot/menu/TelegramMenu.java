@@ -1,4 +1,4 @@
-package com.schorsche94.medi_track.telegram_bot;
+package com.schorsche94.medi_track.telegram_bot.menu;
 
 import lombok.SneakyThrows;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;

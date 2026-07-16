@@ -1,4 +1,4 @@
-package com.schorsche94.medi_track.telegram_bot.tg_model;
+package com.schorsche94.medi_track.telegram_bot.model;
 
 public enum ConversationState {
     NONE,

@@ -1,4 +1,4 @@
-package com.schorsche94.medi_track.telegram_bot;
+package com.schorsche94.medi_track.telegram_bot.config;
 
 
 import org.springframework.beans.factory.annotation.Value;
@@ -10,8 +10,11 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 @Configuration
 public class TelegramBotConfig {
 
+    @Value("${telegram.bot.token}")
+    public static String botToken;
+
     @Bean
-    public TelegramClient telegramClient(@Value("${telegram.bot.token}") String botToken) {
+    public TelegramClient telegramClient() {
         return new OkHttpTelegramClient(botToken);
     }
 }

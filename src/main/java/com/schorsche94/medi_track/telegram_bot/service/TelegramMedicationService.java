@@ -1,15 +1,15 @@
-package com.schorsche94.medi_track.telegram_bot;
+package com.schorsche94.medi_track.telegram_bot.service;
 
 import com.schorsche94.medi_track.domain.enums.MedicationForm;
 import com.schorsche94.medi_track.domain.model.Medicine;
-import com.schorsche94.medi_track.telegram_bot.tg_model.Conversation;
-import com.schorsche94.medi_track.telegram_bot.tg_model.ConversationState;
+import com.schorsche94.medi_track.telegram_bot.model.Conversation;
+import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.List;
 
-import static com.schorsche94.medi_track.telegram_bot.TelegramMenu.sendMenuMedicationForm;
+import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuMedicationForm;
 import static com.schorsche94.medi_track.telegram_bot.utils.TelegramUtils.hideKeyboard;
 import static com.schorsche94.medi_track.telegram_bot.utils.TelegramUtils.sendMessage;
 
