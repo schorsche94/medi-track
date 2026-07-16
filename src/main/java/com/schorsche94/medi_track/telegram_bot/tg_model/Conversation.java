@@ -1,10 +1,8 @@
-package com.schorsche94.medi_track.telegram_bot;
+package com.schorsche94.medi_track.telegram_bot.tg_model;
 
 import com.schorsche94.medi_track.domain.enums.MedicationForm;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.math.BigDecimal;
 
 @Setter
 @Getter
@@ -13,8 +11,7 @@ public class Conversation {
 
     private String name;
     private String description;
-    private BigDecimal doze;
-    private String dozeType;
+    private String dosage;
     private MedicationForm medicationForm;
 
 }

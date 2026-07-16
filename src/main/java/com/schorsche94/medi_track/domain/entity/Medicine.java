@@ -1,6 +1,5 @@
 package com.schorsche94.medi_track.domain.entity;
 
-import com.schorsche94.medi_track.domain.enums.DosageType;
 import com.schorsche94.medi_track.domain.enums.MedicationForm;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -31,9 +30,6 @@ public class Medicine {
     private String activeSubstance;
 
     private String dosage;
-
-    @Enumerated(EnumType.STRING)
-    private DosageType dosageType;
 
     @Enumerated(EnumType.STRING)
     private MedicationForm form;

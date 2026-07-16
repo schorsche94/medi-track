@@ -7,8 +7,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import java.math.BigDecimal;
-
 @Setter
 @Getter
 @AllArgsConstructor
@@ -19,8 +17,7 @@ public class Medicine {
     private String id;
     private String name;
     private String description;
-    private BigDecimal doze;
-    private String dozeType;
+    private String dosage;
     private MedicationForm medicationForm;
 
 }

@@ -1,0 +1,32 @@
+package com.schorsche94.medi_track.telegram_bot.utils;
+
+import lombok.SneakyThrows;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.generics.TelegramClient;
+
+public class TelegramUtils {
+
+    @SneakyThrows
+    public static void hideKeyboard(Long chatId, String message, TelegramClient telegramClient) {
+        SendMessage sendMessage = SendMessage.builder()
+                .text(message)
+                .chatId(chatId)
+                .build();
+
+        ReplyKeyboardRemove keyboardRemove = new ReplyKeyboardRemove(true);
+
+        sendMessage.setReplyMarkup(keyboardRemove);
+
+        telegramClient.execute(sendMessage);
+    }
+
+    @SneakyThrows
+    public static void sendMessage(Long chatId, String message, TelegramClient telegramClient) {
+        SendMessage sendMessage = SendMessage.builder()
+                .text(message)
+                .chatId(chatId)
+                .build();
+        telegramClient.execute(sendMessage);
+    }
+}
