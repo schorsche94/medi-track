@@ -1,16 +1,20 @@
 package com.schorsche94.medi_track.service;
 
-import com.schorsche94.medi_track.domain.model.Medicine;
-import org.springframework.stereotype.Service;
+import com.schorsche94.medi_track.domain.model.Medication;
 
-import java.util.Collections;
 import java.util.List;
 
-@Service
-public class MedicationService {
+public interface MedicationService {
 
-    public List<Medicine> getMedicationList() {
-        return Collections.emptyList();
-    }
+    List<Medication> getMedications(Long chatId);
 
+    List<Medication> getMedicationsForToday(Long chatId);
+
+    Medication createMedication(Medication medication, Long chatId);
+
+    Medication updateMedication(Medication medication, Long chatId);
+
+    Medication getMedication(String id, Long chatId);
+
+    void deleteMedication(String id, Long chatId);
 }

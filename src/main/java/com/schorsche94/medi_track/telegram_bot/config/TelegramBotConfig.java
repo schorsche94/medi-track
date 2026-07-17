@@ -14,7 +14,7 @@ public class TelegramBotConfig {
     public static String botToken;
 
     @Bean
-    public TelegramClient telegramClient() {
+    public TelegramClient telegramClient(@Value("${telegram.bot.token}") String botToken) {
         return new OkHttpTelegramClient(botToken);
     }
 }

@@ -4,22 +4,27 @@ import com.schorsche94.medi_track.domain.enums.MedicationForm;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
-@Table(name = "medicines")
-public class Medicine {
+@Table(name = "medications")
+public class MedicationEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,5 +41,7 @@ public class Medicine {
 
     private String instructions;
 
-    private Long chatId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "added_by", referencedColumnName = "chatId")
+    private UserEntity user;
 }

@@ -1,9 +1,9 @@
 package com.schorsche94.medi_track.telegram_bot;
 
-import com.schorsche94.medi_track.service.MedicationServiceImpl;
 import com.schorsche94.medi_track.telegram_bot.model.Conversation;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramMedicationService;
+import com.schorsche94.medi_track.telegram_bot.service.TelegramUserService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -25,13 +25,13 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     @Autowired
     private TelegramMedicationService telegramMedicationService;
 
+    @Autowired
+    private TelegramUserService telegramUserService;
+
     private Map<Long, Conversation> conversations = new ConcurrentHashMap<>();
 
     @Autowired
     private TelegramClient telegramClient;
-
-    @Autowired
-    private MedicationServiceImpl medicationServiceImpl;
 
     @SneakyThrows
     @Override
@@ -43,6 +43,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         }
     }
 
+    @SneakyThrows
     private void handleMessage(Update update) {
         String messageText = update.getMessage().getText();
         Long chatId = update.getMessage().getChatId();
@@ -55,10 +56,11 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         }
 
         if (messageText.equals("/start")) {
+            telegramUserService.addUser(update.getMessage().getChat());
+
             sendMainMenu(chatId, telegramClient);
         } else if(messageText.equals("/show_today_medication_list") || messageText.equals("show_today_medication_list")) {
-           var medications = medicationServiceImpl.getMedicationsForToday();
-            telegramMedicationService.prepareAndSendTodayMedicationToTG(medications, chatId, telegramClient);
+            telegramMedicationService.prepareAndSendTodayMedicationToTG(chatId, telegramClient);
         } else if(messageText.equals("/menu_medication")) {
             sendMenuMedication(chatId, telegramClient);
         } else {
@@ -66,22 +68,21 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         }
     }
 
+    @SneakyThrows
     private void handleCallbackQuery(CallbackQuery callbackQuery) {
         var data = callbackQuery.getData();
         var chatId = callbackQuery.getFrom().getId();
         switch (data) {
             case "show_today_medication_list" -> {
-                var medications = medicationServiceImpl.getMedicationsForToday();
-                telegramMedicationService.prepareAndSendTodayMedicationToTG(medications, chatId, telegramClient);
+                telegramMedicationService.prepareAndSendTodayMedicationToTG(chatId, telegramClient);
+            }
+            case "show_all_medications" -> {
+                telegramMedicationService.prepareAndSendMedicationsToTG(chatId, telegramClient);
             }
             case "menu_medication" -> sendMenuMedication(chatId, telegramClient);
             case "add_medication" -> {
                 var conversation = telegramMedicationService.addMedication(chatId, telegramClient);
                 conversations.put(chatId, conversation);
-            }
-            case "show_all_medications" -> {
-                var medications = medicationServiceImpl.getMedications();
-                telegramMedicationService.prepareAndSendMedicationsToTG(medications, chatId, telegramClient);
             }
             default -> sendMessage(chatId, "Unknown operation!", telegramClient);
         }

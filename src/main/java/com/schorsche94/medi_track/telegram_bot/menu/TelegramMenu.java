@@ -8,6 +8,7 @@ import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKe
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.util.ArrayList;
@@ -15,8 +16,7 @@ import java.util.List;
 
 public class TelegramMenu {
 
-    @SneakyThrows
-    public static void sendMainMenu(Long chatId, TelegramClient telegramClient) {
+    public static void sendMainMenu(Long chatId, TelegramClient telegramClient)  throws TelegramApiException {
         SendMessage message = SendMessage.builder()
                 .text("Welcome! Choose what you want to do!")
                 .chatId(chatId)
@@ -31,10 +31,9 @@ public class TelegramMenu {
         telegramClient.execute(message);
     }
 
-    @SneakyThrows
-    public static void sendMenuMedication(Long chatId, TelegramClient telegramClient) {
+    public static void sendMenuMedication(Long chatId, TelegramClient telegramClient)  throws TelegramApiException {
         SendMessage sendMessage = SendMessage.builder()
-                .text("Medication keyboard")
+                .text("Medication actions")
                 .chatId(chatId)
                 .build();
 
@@ -58,8 +57,7 @@ public class TelegramMenu {
         telegramClient.execute(sendMessage);
     }
 
-    @SneakyThrows
-    public static void sendMenuMedicationForm(Long chatId, TelegramClient telegramClient) {
+    public static void sendMenuMedicationForm(Long chatId, TelegramClient telegramClient) throws TelegramApiException {
         SendMessage sendMessage = SendMessage.builder()
                 .text("Enter medication form:")
                 .chatId(chatId)

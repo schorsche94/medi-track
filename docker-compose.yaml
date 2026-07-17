@@ -1,5 +1,5 @@
 services:
-  db:
+  postgres_db:
     image: postgres:latest
     container_name: medi_track_db
     restart: always
@@ -17,5 +17,22 @@ services:
     ports:
       - "5438:5432"
 
+  mongodb:
+    image: mongodb/mongodb-atlas-local
+    hostname: medi_track_mongodb
+    environment:
+      MONGODB_INITDB_ROOT_USERNAME: ${DB_USER}
+      MONGODB_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    ports:
+      - 27017:27017
+    volumes:
+      - ./init:/docker-entrypoint-initdb.d
+      - db:/data/db
+      - configdb:/data/configdb
+      - mongot:/data/mongot
+
 volumes:
+  db:
+  configdb:
+  mongot:
   db-data:

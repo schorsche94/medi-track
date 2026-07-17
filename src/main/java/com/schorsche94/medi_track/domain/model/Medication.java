@@ -12,12 +12,20 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder
-public class Medicine {
+public class Medication {
 
     private String id;
+
     private String name;
-    private String description;
+
+    private String activeSubstance;
+
     private String dosage;
-    private MedicationForm medicationForm;
+
+    private MedicationForm form;
+
+    private String instructions;
+
+    private Long addedBy;
 
 }

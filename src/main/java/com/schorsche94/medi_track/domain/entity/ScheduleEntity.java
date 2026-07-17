@@ -16,17 +16,20 @@ import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDate;
 
-@Data
+@Getter
+@Setter
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @Entity
 @Table(name = "schedules")
-public class Schedule {
+public class ScheduleEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,10 +37,11 @@ public class Schedule {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "medicine_id", nullable = false)
-    private Medicine medicine;
+    private MedicationEntity medicine;
 
-    /** Telegram chat ID of the user this schedule belongs to */
-    private Long chatId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "added_by", referencedColumnName = "chatId")
+    private UserEntity user;
 
     /** Start date of the medication course */
     private LocalDate startDate;

@@ -10,8 +10,13 @@ public class Conversation {
     private ConversationState state;
 
     private String name;
-    private String description;
+
+    private String activeSubstance;
+
     private String dosage;
-    private MedicationForm medicationForm;
+
+    private MedicationForm form;
+
+    private String instructions;
 
 }
