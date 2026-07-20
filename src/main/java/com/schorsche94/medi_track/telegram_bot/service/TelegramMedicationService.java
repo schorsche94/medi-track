@@ -9,8 +9,14 @@ import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
+import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuMedicationForm;
@@ -32,7 +38,6 @@ public class TelegramMedicationService {
     public Conversation addMedication(Long chatId, TelegramClient telegramClient) {
         Conversation conversation = new Conversation();
         conversation.setState(ConversationState.WAITING_NAME);
-
 
         sendMessage(chatId, "Enter medication name:", telegramClient);
         return conversation;
@@ -79,9 +84,14 @@ public class TelegramMedicationService {
                 conversation.setInstructions(text);
                 conversation.setState(ConversationState.NONE);
 
-                medicationService.createMedication(mapper.toModel(conversation), chatId);
+                var medication = medicationService.createMedication(mapper.toModel(conversation), chatId);
 
-                sendMessage(chatId, "Medication added!", telegramClient);
+                StringBuilder sb = new StringBuilder();
+                sb.append("\uD83D\uDC8A Medication added:\n\n");
+
+                prepareMedication(sb, medication);
+
+                sendMedication(chatId, telegramClient, sb);
             }
 
             default -> {
@@ -91,67 +101,95 @@ public class TelegramMedicationService {
         }
     }
 
+    private static void sendMedication(Long chatId, TelegramClient telegramClient, StringBuilder sb) throws TelegramApiException {
+        SendMessage sendMessage = SendMessage.builder()
+                .text(sb.toString())
+                .chatId(chatId)
+                .build();
+        sendMessage.setParseMode("HTML");
+
+        List<InlineKeyboardRow> rowsInline = new ArrayList<>();
+
+        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Edit medication").callbackData("edit_medication").build();
+        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Delete medication").callbackData("delete_medication").build();
+        InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
+
+        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Schedule medication").callbackData("schedule_medication").build();
+
+        InlineKeyboardRow row2 = new InlineKeyboardRow(button3);
+
+        rowsInline.add(row1);
+        rowsInline.add(row2);
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
+
+        telegramClient.execute(sendMessage);
+    }
+
     @SneakyThrows
     public void prepareAndSendTodayMedicationToTG(Long chatId, TelegramClient telegramClient) {
         var medications = medicationService.getMedicationsForToday(chatId);
-        if(medications.isEmpty()) {
+        if (medications.isEmpty()) {
             sendMessage(chatId, "You don`t have medications for today.", telegramClient);
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append("\uD83D\uDC8A Medication list for today:\n\n");
 
             prepareMedicationList(medications, sb);
-
-            sendMessage(chatId, sb.toString(), telegramClient);
+            sendMedication(chatId, telegramClient, sb);
         }
     }
 
     @SneakyThrows
     public void prepareAndSendMedicationsToTG(Long chatId, TelegramClient telegramClient) {
         var medications = medicationService.getMedications(chatId);
-        if(medications.isEmpty()) {
+        if (medications.isEmpty()) {
             sendMessage(chatId, "You don`t have medications.", telegramClient);
         } else {
             StringBuilder sb = new StringBuilder();
             sb.append("\uD83D\uDC8A Medication list:\n\n");
 
             prepareMedicationList(medications, sb);
-
-            sendMessage(chatId, sb.toString(), telegramClient);
+            sendMedication(chatId, telegramClient, sb);
         }
     }
 
     private static void prepareMedicationList(List<Medication> medications, StringBuilder sb) {
         for (Medication m : medications) {
-            sb.append("🔹 ")
-                    .append(m.getName())
-                    .append("\n");
-
-            if (m.getActiveSubstance() != null && !m.getActiveSubstance().isEmpty()) {
-                sb.append("   ")
-                        .append(m.getActiveSubstance())
-                        .append("\n");
-            }
-
-
-            if (m.getDosage() != null) {
-                sb.append("  Dosage: ").append(m.getDosage())
-                        .append("\n");
-            }
-
-            if (m.getForm() != null) {
-                sb.append("  Medication type: ")
-                        .append(m.getForm())
-                        .append("\n");
-            }
-
-            if (m.getInstructions() != null && !m.getInstructions().isEmpty()) {
-                sb.append("   ")
-                        .append(m.getInstructions())
-                        .append("\n");
-            }
-
-            sb.append("\n");
+            prepareMedication(sb, m);
         }
+    }
+
+    private static void prepareMedication(StringBuilder sb, Medication medication) {
+        sb.append("🔹 <b>")
+                .append(medication.getName())
+                .append("</b>\n");
+
+        if (medication.getActiveSubstance() != null && !medication.getActiveSubstance().isEmpty()) {
+            sb.append("  Active substance: ")
+                    .append(medication.getActiveSubstance())
+                    .append("\n");
+        }
+
+        if (medication.getDosage() != null) {
+            sb.append("  Dosage: ").append(medication.getDosage())
+                    .append("\n");
+        }
+
+        if (medication.getForm() != null) {
+            sb.append("  Medication form: ")
+                    .append(medication.getForm())
+                    .append("\n");
+        }
+
+        if (medication.getInstructions() != null && !medication.getInstructions().isEmpty()) {
+            sb.append("  Medication instructions: ")
+                    .append(medication.getInstructions())
+                    .append("\n");
+        }
+
+        sb.append("\n");
     }
 }
