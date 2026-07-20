@@ -21,8 +21,8 @@ public class MedicationRepositoryImpl implements MedicationRepository {
     private MedicationMapper mapper;
 
     @Override
-    public List<Medication> getMedications() {
-        return List.of();
+    public List<Medication> getMedications(Long chatId) {
+        return mapper.toModelList(repository.findByUserChatIdOrUserIsNull(chatId));
     }
 
     @Override

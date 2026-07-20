@@ -137,8 +137,7 @@ public class TelegramMedicationService {
             StringBuilder sb = new StringBuilder();
             sb.append("\uD83D\uDC8A Medication list for today:\n\n");
 
-            prepareMedicationList(medications, sb);
-            sendMedication(chatId, telegramClient, sb);
+            prepareMedicationList(chatId, telegramClient, medications);
         }
     }
 
@@ -148,17 +147,19 @@ public class TelegramMedicationService {
         if (medications.isEmpty()) {
             sendMessage(chatId, "You don`t have medications.", telegramClient);
         } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("\uD83D\uDC8A Medication list:\n\n");
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("\uD83D\uDC8A Medication list:\n\n");
 
-            prepareMedicationList(medications, sb);
-            sendMedication(chatId, telegramClient, sb);
+            prepareMedicationList(chatId, telegramClient, medications);
         }
     }
 
-    private static void prepareMedicationList(List<Medication> medications, StringBuilder sb) {
+    @SneakyThrows
+    private static void prepareMedicationList(Long chatId, TelegramClient telegramClient, List<Medication> medications) {
         for (Medication m : medications) {
+            StringBuilder sb = new StringBuilder();
             prepareMedication(sb, m);
+            sendMedication(chatId, telegramClient, sb);
         }
     }
 

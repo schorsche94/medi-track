@@ -5,7 +5,7 @@ import com.schorsche94.medi_track.domain.model.Medication;
 import java.util.List;
 
 public interface MedicationRepository {
-    List<Medication> getMedications();
+    List<Medication> getMedications(Long chatId);
 
     List<Medication> getMedicationsForToday();
 

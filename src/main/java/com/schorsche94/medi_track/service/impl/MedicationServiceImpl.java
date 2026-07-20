@@ -23,7 +23,7 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public List<Medication> getMedications(Long chatId) {
-        return List.of();
+        return repository.getMedications(chatId);
     }
 
     @Override
