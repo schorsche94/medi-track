@@ -1,5 +1,6 @@
 package com.schorsche94.medi_track.telegram_bot.menu;
 
+import com.schorsche94.medi_track.domain.model.MedicationForm;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
@@ -51,39 +52,21 @@ public class TelegramMenu {
         telegramClient.execute(sendMessage);
     }
 
-    public static void sendMenuMedicationForm(Long chatId, TelegramClient telegramClient) throws TelegramApiException {
+    public static void sendMenuMedicationForm(Long chatId, TelegramClient telegramClient, List<MedicationForm> forms) throws TelegramApiException {
         SendMessage sendMessage = SendMessage.builder()
-                .text("Enter medication form:")
+                .text("Choose medication form:")
                 .chatId(chatId)
                 .build();
 
         List<KeyboardRow> rowsInline = new ArrayList<>();
-
-        KeyboardButton button1 = KeyboardButton.builder().text("TABLET").build();
-        KeyboardButton button2 = KeyboardButton.builder().text("CAPSULE").build();
-        KeyboardRow row1 = new KeyboardRow(button1, button2);
-
-        KeyboardButton button3 = KeyboardButton.builder().text("DROPS").build();
-        KeyboardButton button4 = KeyboardButton.builder().text("SUPPOSITORY").build();
-        KeyboardRow row2 = new KeyboardRow(button3, button4);
-
-        KeyboardButton button5 = KeyboardButton.builder().text("SYRUP").build();
-        KeyboardButton button6 = KeyboardButton.builder().text("OINTMENT").build();
-        KeyboardRow row3 = new KeyboardRow(button5, button6);
-
-        KeyboardButton button7 = KeyboardButton.builder().text("CREAM").build();
-        KeyboardButton button8 = KeyboardButton.builder().text("SPRAY").build();
-        KeyboardRow row4 = new KeyboardRow(button7, button8);
-
-        KeyboardButton button9 = KeyboardButton.builder().text("GEL").build();
-        KeyboardButton button10 = KeyboardButton.builder().text("INJECTION").build();
-        KeyboardRow row5 = new KeyboardRow(button9, button10);
-
-        rowsInline.add(row1);
-        rowsInline.add(row2);
-        rowsInline.add(row3);
-        rowsInline.add(row4);
-        rowsInline.add(row5);
+        for (int i = 0; i < forms.size(); i += 2) {
+            KeyboardRow row = new KeyboardRow();
+            row.add(KeyboardButton.builder().text(forms.get(i).getCode()).build());
+            if (i + 1 < forms.size()) {
+                row.add(KeyboardButton.builder().text(forms.get(i + 1).getCode()).build());
+            }
+            rowsInline.add(row);
+        }
 
         ReplyKeyboardMarkup markupInline = new ReplyKeyboardMarkup(rowsInline);
         markupInline.setKeyboard(rowsInline);

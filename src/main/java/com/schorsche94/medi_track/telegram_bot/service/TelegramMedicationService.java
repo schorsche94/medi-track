@@ -1,7 +1,7 @@
 package com.schorsche94.medi_track.telegram_bot.service;
 
-import com.schorsche94.medi_track.domain.enums.MedicationForm;
 import com.schorsche94.medi_track.domain.model.Medication;
+import com.schorsche94.medi_track.service.MedicationFormService;
 import com.schorsche94.medi_track.service.MedicationService;
 import com.schorsche94.medi_track.telegram_bot.mapper.TelegramMedicationMapper;
 import com.schorsche94.medi_track.telegram_bot.model.Conversation;
@@ -33,6 +33,9 @@ public class TelegramMedicationService {
 
     @Autowired
     private TelegramMedicationMapper mapper;
+
+    @Autowired
+    private MedicationFormService medicationFormService;
 
     @SneakyThrows
     public Conversation addMedication(Long chatId, TelegramClient telegramClient) {
@@ -70,11 +73,16 @@ public class TelegramMedicationService {
                 }
                 conversation.setState(ConversationState.WAITING_FORM);
 
-                sendMenuMedicationForm(chatId, telegramClient);
+                sendMenuMedicationForm(chatId, telegramClient, medicationFormService.getForms());
             }
 
             case WAITING_FORM -> {
-                conversation.setForm(MedicationForm.valueOf(text));
+                var form = medicationFormService.getFormByCode(text);
+                if (form == null) {
+                    sendMenuMedicationForm(chatId, telegramClient, medicationFormService.getForms());
+                    return;
+                }
+                conversation.setForm(form);
                 conversation.setState(ConversationState.WAITING_INSTRUCTIONS);
 
                 hideKeyboard(chatId, "Enter medication instructions:", telegramClient);
@@ -181,7 +189,19 @@ public class TelegramMedicationService {
 
         if (medication.getForm() != null) {
             sb.append("  Medication form: ")
-                    .append(medication.getForm())
+                    .append(medication.getForm().getName())
+                    .append("\n");
+        }
+
+        if (medication.getCategory() != null) {
+            sb.append("  Category: ")
+                    .append(medication.getCategory().getName())
+                    .append("\n");
+        }
+
+        if (medication.getDescription() != null && !medication.getDescription().isBlank()) {
+            sb.append("  Purpose: ")
+                    .append(medication.getDescription())
                     .append("\n");
         }
 

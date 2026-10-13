@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface MedicationJpaRepository extends JpaRepository<MedicationEntity, Integer> {
+public interface MedicationJpaRepository extends JpaRepository<MedicationEntity, Long> {
 
     List<MedicationEntity> findByUserChatIdOrUserIsNull(Long chatId);
 

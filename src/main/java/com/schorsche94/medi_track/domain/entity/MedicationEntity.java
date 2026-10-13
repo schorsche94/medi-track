@@ -1,9 +1,6 @@
 package com.schorsche94.medi_track.domain.entity;
 
-import com.schorsche94.medi_track.domain.enums.MedicationForm;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -36,8 +33,15 @@ public class MedicationEntity {
 
     private String dosage;
 
-    @Enumerated(EnumType.STRING)
-    private MedicationForm form;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "form_id")
+    private MedicationFormEntity form;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "category_id")
+    private MedicationCategoryEntity category;
+
+    private String description;
 
     private String instructions;
 

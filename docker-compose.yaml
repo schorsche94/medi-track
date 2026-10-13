@@ -13,18 +13,17 @@ services:
       timeout: 5s
       retries: 5
     volumes:
-      - db-data:/var/lib/postgresql/data
+      - db-data:/var/lib/postgresql
     ports:
       - "5438:5432"
 
   mongodb:
-    image: mongodb/mongodb-atlas-local
-    hostname: medi_track_mongodb
+    image: mongodb/mongodb-community-server:8.0-ubi8
     environment:
       MONGODB_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGODB_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
     ports:
-      - 27017:27017
+      - "27017:27017"
     volumes:
       - ./init:/docker-entrypoint-initdb.d
       - db:/data/db

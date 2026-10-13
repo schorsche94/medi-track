@@ -1,6 +1,6 @@
 package com.schorsche94.medi_track.telegram_bot.model;
 
-import com.schorsche94.medi_track.domain.enums.MedicationForm;
+import com.schorsche94.medi_track.domain.model.MedicationForm;
 import lombok.Getter;
 import lombok.Setter;
 

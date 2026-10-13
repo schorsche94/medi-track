@@ -7,7 +7,7 @@ import org.mapstruct.Mapping;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Mapper(componentModel = "spring", uses = {MedicationCategoryMapper.class, MedicationFormMapper.class})
 public abstract class MedicationMapper {
 
     @Mapping(source = "addedBy", target = "user.chatId")
