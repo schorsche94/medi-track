@@ -32,7 +32,7 @@ public class MedicationRepositoryImpl implements MedicationRepository {
 
     @Override
     public List<Medication> getMedications(Long chatId) {
-        return mapper.toModelList(repository.findByUserChatIdOrUserIsNull(chatId));
+        return mapper.toModelList(repository.findByUserChatId(chatId));
     }
 
     @Override
