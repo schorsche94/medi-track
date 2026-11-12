@@ -72,6 +72,30 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     private void handleCallbackQuery(CallbackQuery callbackQuery) {
         var data = callbackQuery.getData();
         var chatId = callbackQuery.getFrom().getId();
+
+        if (data.startsWith("edit_medication:")) {
+            Long medicationId = Long.valueOf(data.split(":")[1]);
+
+            // дальше твой код:
+            // var conversation = telegramMedicationService.editMedication(chatId, medicationId, telegramClient);
+            // conversations.put(chatId, conversation);
+
+            return;
+        }
+
+        if (data.startsWith("delete_medication:")) {
+            Long medicationId = Long.valueOf(data.split(":")[1]);
+            telegramMedicationService.deleteMedication(chatId, medicationId, telegramClient);
+
+            return;
+        }
+
+        if (data.startsWith("schedule_medication:")) {
+            Long medicationId = Long.valueOf(data.split(":")[1]);
+
+            return;
+        }
+
         switch (data) {
             case "show_today_medication_list" -> {
                 telegramMedicationService.prepareAndSendTodayMedicationToTG(chatId, telegramClient);

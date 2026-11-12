@@ -42,7 +42,13 @@ public class MedicationServiceImpl implements MedicationService {
     }
 
     @Override
-    public void deleteMedication(String id, Long chatId) {
+    public void deleteMedication(String id, Long chatId) throws Exception {
+        var medication = repository.getMedication(id);
+        if(!medication.getAddedBy().equals(chatId)) {
+            throw new Exception("You cannot delete this medication");
+        }
+        repository.deleteMedication(id);
+
 
     }
 }

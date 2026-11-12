@@ -1,6 +1,7 @@
 package com.schorsche94.medi_track.telegram_bot.service;
 
 import com.schorsche94.medi_track.domain.model.Medication;
+import com.schorsche94.medi_track.service.MedicationCategoryService;
 import com.schorsche94.medi_track.service.MedicationFormService;
 import com.schorsche94.medi_track.service.MedicationService;
 import com.schorsche94.medi_track.telegram_bot.mapper.TelegramMedicationMapper;
@@ -19,6 +20,7 @@ import org.telegram.telegrambots.meta.generics.TelegramClient;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuMedicationCategory;
 import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuMedicationForm;
 import static com.schorsche94.medi_track.telegram_bot.utils.TelegramUtils.hideKeyboard;
 import static com.schorsche94.medi_track.telegram_bot.utils.TelegramUtils.sendMessage;
@@ -36,6 +38,9 @@ public class TelegramMedicationService {
 
     @Autowired
     private MedicationFormService medicationFormService;
+
+    @Autowired
+    private MedicationCategoryService medicationCategoryService;
 
     @SneakyThrows
     public Conversation addMedication(Long chatId, TelegramClient telegramClient) {
@@ -83,6 +88,18 @@ public class TelegramMedicationService {
                     return;
                 }
                 conversation.setForm(form);
+                conversation.setState(ConversationState.WAITING_CATEGORY);
+
+                sendMenuMedicationCategory(chatId, telegramClient, medicationCategoryService.getCategories());
+            }
+
+            case WAITING_CATEGORY -> {
+                var form = medicationCategoryService.getCategoryByCode(text);
+                if (form == null) {
+                    sendMenuMedicationCategory(chatId, telegramClient, medicationCategoryService.getCategories());
+                    return;
+                }
+                conversation.setCategory(form);
                 conversation.setState(ConversationState.WAITING_INSTRUCTIONS);
 
                 hideKeyboard(chatId, "Enter medication instructions:", telegramClient);
@@ -99,7 +116,7 @@ public class TelegramMedicationService {
 
                 prepareMedication(sb, medication);
 
-                sendMedication(chatId, telegramClient, sb);
+                sendMedication(chatId, telegramClient, sb, medication);
             }
 
             default -> {
@@ -109,7 +126,7 @@ public class TelegramMedicationService {
         }
     }
 
-    private static void sendMedication(Long chatId, TelegramClient telegramClient, StringBuilder sb) throws TelegramApiException {
+    private static void sendMedication(Long chatId, TelegramClient telegramClient, StringBuilder sb, Medication medication) throws TelegramApiException {
         SendMessage sendMessage = SendMessage.builder()
                 .text(sb.toString())
                 .chatId(chatId)
@@ -118,11 +135,11 @@ public class TelegramMedicationService {
 
         List<InlineKeyboardRow> rowsInline = new ArrayList<>();
 
-        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Edit medication").callbackData("edit_medication").build();
-        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Delete medication").callbackData("delete_medication").build();
+        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Edit medication").callbackData("edit_medication:" + medication.getId()).build();
+        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Delete medication").callbackData("delete_medication:" + medication.getId()).build();
         InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
 
-        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Schedule medication").callbackData("schedule_medication").build();
+        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Schedule medication").callbackData("schedule_medication:" + medication.getId()).build();
 
         InlineKeyboardRow row2 = new InlineKeyboardRow(button3);
 
@@ -167,7 +184,7 @@ public class TelegramMedicationService {
         for (Medication m : medications) {
             StringBuilder sb = new StringBuilder();
             prepareMedication(sb, m);
-            sendMedication(chatId, telegramClient, sb);
+            sendMedication(chatId, telegramClient, sb, m);
         }
     }
 
@@ -212,5 +229,15 @@ public class TelegramMedicationService {
         }
 
         sb.append("\n");
+    }
+
+    @SneakyThrows
+    public void deleteMedication(Long chatId, Long medicationId, TelegramClient telegramClient) {
+        try {
+            medicationService.deleteMedication(String.valueOf(medicationId), chatId);
+            sendMessage(chatId, "Medication was successfully deleted!", telegramClient);
+        } catch (Exception e) {
+            sendMessage(chatId, "Medication was not deleted! " + e.getMessage(), telegramClient);
+        }
     }
 }

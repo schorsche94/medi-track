@@ -1,5 +1,6 @@
 package com.schorsche94.medi_track.telegram_bot.menu;
 
+import com.schorsche94.medi_track.domain.model.MedicationCategory;
 import com.schorsche94.medi_track.domain.model.MedicationForm;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
@@ -64,6 +65,29 @@ public class TelegramMenu {
             row.add(KeyboardButton.builder().text(forms.get(i).getCode()).build());
             if (i + 1 < forms.size()) {
                 row.add(KeyboardButton.builder().text(forms.get(i + 1).getCode()).build());
+            }
+            rowsInline.add(row);
+        }
+
+        ReplyKeyboardMarkup markupInline = new ReplyKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
+
+        telegramClient.execute(sendMessage);
+    }
+
+    public static void sendMenuMedicationCategory(Long chatId, TelegramClient telegramClient, List<MedicationCategory> categories) throws TelegramApiException {
+        SendMessage sendMessage = SendMessage.builder()
+                .text("Choose medication category:")
+                .chatId(chatId)
+                .build();
+
+        List<KeyboardRow> rowsInline = new ArrayList<>();
+        for (int i = 0; i < categories.size(); i += 2) {
+            KeyboardRow row = new KeyboardRow();
+            row.add(KeyboardButton.builder().text(categories.get(i).getCode()).build());
+            if (i + 1 < categories.size()) {
+                row.add(KeyboardButton.builder().text(categories.get(i + 1).getCode()).build());
             }
             rowsInline.add(row);
         }

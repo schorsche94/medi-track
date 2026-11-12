@@ -1,5 +1,6 @@
 package com.schorsche94.medi_track.telegram_bot.model;
 
+import com.schorsche94.medi_track.domain.model.MedicationCategory;
 import com.schorsche94.medi_track.domain.model.MedicationForm;
 import lombok.Getter;
 import lombok.Setter;
@@ -9,6 +10,8 @@ import lombok.Setter;
 public class Conversation {
     private ConversationState state;
 
+    private String id;
+
     private String name;
 
     private String activeSubstance;
@@ -16,6 +19,8 @@ public class Conversation {
     private String dosage;
 
     private MedicationForm form;
+
+    private MedicationCategory category;
 
     private String instructions;
 

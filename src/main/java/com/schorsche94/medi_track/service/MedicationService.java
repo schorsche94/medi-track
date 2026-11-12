@@ -16,5 +16,5 @@ public interface MedicationService {
 
     Medication getMedication(String id, Long chatId);
 
-    void deleteMedication(String id, Long chatId);
+    void deleteMedication(String id, Long chatId) throws Exception;
 }
