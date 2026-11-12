@@ -53,9 +53,9 @@ public class TelegramMenu {
         telegramClient.execute(sendMessage);
     }
 
-    public static void sendMenuMedicationForm(Long chatId, TelegramClient telegramClient, List<MedicationForm> forms) throws TelegramApiException {
+    public static void sendMenuMedicationForm(Long chatId, TelegramClient telegramClient, List<MedicationForm> forms, String oldValue) throws TelegramApiException {
         SendMessage sendMessage = SendMessage.builder()
-                .text("Choose medication form:")
+                .text("Choose medication form:" + oldValue)
                 .chatId(chatId)
                 .build();
 
@@ -76,9 +76,9 @@ public class TelegramMenu {
         telegramClient.execute(sendMessage);
     }
 
-    public static void sendMenuMedicationCategory(Long chatId, TelegramClient telegramClient, List<MedicationCategory> categories) throws TelegramApiException {
+    public static void sendMenuMedicationCategory(Long chatId, TelegramClient telegramClient, List<MedicationCategory> categories, String oldValue) throws TelegramApiException {
         SendMessage sendMessage = SendMessage.builder()
-                .text("Choose medication category:")
+                .text("Choose medication category:" + oldValue)
                 .chatId(chatId)
                 .build();
 

@@ -76,9 +76,12 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         if (data.startsWith("edit_medication:")) {
             Long medicationId = Long.valueOf(data.split(":")[1]);
 
-            // дальше твой код:
-            // var conversation = telegramMedicationService.editMedication(chatId, medicationId, telegramClient);
-            // conversations.put(chatId, conversation);
+            try{
+             var conversation = telegramMedicationService.editMedication(chatId, medicationId, telegramClient);
+             conversations.put(chatId, conversation);
+            } catch (Exception e) {
+                sendMessage(chatId, "Failed to edit medication!", telegramClient);
+            }
 
             return;
         }

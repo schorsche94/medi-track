@@ -33,12 +33,21 @@ public class MedicationServiceImpl implements MedicationService {
 
     @Override
     public Medication updateMedication(Medication medication, Long chatId) {
-        return null;
+        var existing = repository.getMedication(medication.getId());
+        if (existing == null || !chatId.equals(existing.getAddedBy())) {
+            throw new IllegalArgumentException("Medication not found or you cannot edit it");
+        }
+        medication.setAddedBy(chatId);
+        return repository.updateMedication(medication);
     }
 
     @Override
     public Medication getMedication(String id, Long chatId) {
-        return null;
+        var medication = repository.getMedication(id);
+        if (medication == null || !chatId.equals(medication.getAddedBy())) {
+            return null;
+        }
+        return medication;
     }
 
     @Override
