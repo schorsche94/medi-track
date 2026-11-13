@@ -7,7 +7,7 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class Conversation {
+public class MedicationConversation {
     private ConversationState state;
 
     private String id;

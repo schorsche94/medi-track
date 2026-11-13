@@ -3,6 +3,7 @@ package com.schorsche94.medi_track.domain.entity;
 import com.schorsche94.medi_track.domain.enums.IntakeInstruction;
 import com.schorsche94.medi_track.domain.enums.ScheduleStatus;
 import jakarta.persistence.Column;
+import org.hibernate.annotations.ColumnTransformer;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -64,6 +65,7 @@ public class ScheduleEntity {
      * ]
      */
     @Column(columnDefinition = "jsonb")
+    @ColumnTransformer(write = "?::jsonb")
     private String scheduledTimes;
 
     /** Take medicine every X days (e.g. every 2 days) */

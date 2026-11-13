@@ -47,7 +47,7 @@ Start the Spring Boot application from the project root:
 
 On Windows, use `mvnw.cmd spring-boot:run` instead. Alternatively, run `com.schorsche94.medi_track.MediTrackApplication` from your IDE. Flyway applies the migrations on startup.
 
-Open Telegram and start a conversation with `@medi_track_bot` using `/start`. Use the medication menu to add or list medications. The bot token must be configured before the application starts.
+Open Telegram and start a medicationConversation with `@medi_track_bot` using `/start`. Use the medication menu to add or list medications. The bot token must be configured before the application starts.
 
 To stop the local database:
 
@@ -69,7 +69,7 @@ On Windows:
 
 ## Project layout
 
-- `src/main/java/.../telegram_bot` — Telegram update handling, menus, and medication conversation flow.
+- `src/main/java/.../telegram_bot` — Telegram update handling, menus, and medication medicationConversation flow.
 - `src/main/java/.../service` — application services and ownership checks.
 - `src/main/java/.../domain` — medication models, JPA entities, repositories, and mappers.
 - `src/main/resources/db/migration` — Flyway schema and reference data migrations.

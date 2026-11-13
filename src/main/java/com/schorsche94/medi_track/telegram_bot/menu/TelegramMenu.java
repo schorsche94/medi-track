@@ -1,5 +1,7 @@
 package com.schorsche94.medi_track.telegram_bot.menu;
 
+import com.schorsche94.medi_track.domain.enums.IntakeInstruction;
+import com.schorsche94.medi_track.domain.enums.ScheduleStatus;
 import com.schorsche94.medi_track.domain.model.MedicationCategory;
 import com.schorsche94.medi_track.domain.model.MedicationForm;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -88,6 +90,52 @@ public class TelegramMenu {
             row.add(KeyboardButton.builder().text(categories.get(i).getCode()).build());
             if (i + 1 < categories.size()) {
                 row.add(KeyboardButton.builder().text(categories.get(i + 1).getCode()).build());
+            }
+            rowsInline.add(row);
+        }
+
+        ReplyKeyboardMarkup markupInline = new ReplyKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
+
+        telegramClient.execute(sendMessage);
+    }
+
+    public static void sendMenuStatusForm(Long chatId, TelegramClient telegramClient, ScheduleStatus[] values, String oldValue) throws TelegramApiException {
+        SendMessage sendMessage = SendMessage.builder()
+                .text("Choose status:" + oldValue)
+                .chatId(chatId)
+                .build();
+
+        List<KeyboardRow> rowsInline = new ArrayList<>();
+        for (int i = 0; i < values.length; i += 2) {
+            KeyboardRow row = new KeyboardRow();
+            row.add(KeyboardButton.builder().text(String.valueOf(values[i])).build());
+            if (i + 1 < values.length) {
+                row.add(KeyboardButton.builder().text(String.valueOf(values[i+1])).build());
+            }
+            rowsInline.add(row);
+        }
+
+        ReplyKeyboardMarkup markupInline = new ReplyKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
+
+        telegramClient.execute(sendMessage);
+    }
+
+    public static void sendMenuIntakeInstructionsForm(Long chatId, TelegramClient telegramClient, IntakeInstruction[] values, String oldValue) throws TelegramApiException {
+        SendMessage sendMessage = SendMessage.builder()
+                .text("Choose intake instruction:" + oldValue)
+                .chatId(chatId)
+                .build();
+
+        List<KeyboardRow> rowsInline = new ArrayList<>();
+        for (int i = 0; i < values.length; i += 2) {
+            KeyboardRow row = new KeyboardRow();
+            row.add(KeyboardButton.builder().text(String.valueOf(values[i])).build());
+            if (i + 1 < values.length) {
+                row.add(KeyboardButton.builder().text(String.valueOf(values[i+1])).build());
             }
             rowsInline.add(row);
         }

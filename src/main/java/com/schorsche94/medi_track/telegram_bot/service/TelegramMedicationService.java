@@ -5,8 +5,9 @@ import com.schorsche94.medi_track.service.MedicationCategoryService;
 import com.schorsche94.medi_track.service.MedicationFormService;
 import com.schorsche94.medi_track.service.MedicationService;
 import com.schorsche94.medi_track.telegram_bot.mapper.TelegramMedicationMapper;
-import com.schorsche94.medi_track.telegram_bot.model.Conversation;
+import com.schorsche94.medi_track.telegram_bot.model.MedicationConversation;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
+import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +29,7 @@ import static com.schorsche94.medi_track.telegram_bot.utils.TelegramUtils.sendMe
 @Service
 public class TelegramMedicationService {
 
-    private Conversation conversation;
+    private MedicationConversation medicationConversation;
 
     @Autowired
     private MedicationService medicationService;
@@ -43,39 +44,39 @@ public class TelegramMedicationService {
     private MedicationCategoryService medicationCategoryService;
 
     @SneakyThrows
-    public Conversation addMedication(Long chatId, TelegramClient telegramClient) {
-        Conversation conversation = new Conversation();
-        conversation.setState(ConversationState.WAITING_NAME);
+    public MedicationConversation addMedication(Long chatId, TelegramClient telegramClient) {
+        MedicationConversation medicationConversation = new MedicationConversation();
+        medicationConversation.setState(ConversationState.WAITING_NAME);
 
         sendMessage(chatId, "Enter medication name:", telegramClient);
-        return conversation;
+        return medicationConversation;
     }
 
     @SneakyThrows
-    public void handleConversation(Long chatId, String text, Conversation conversation, TelegramClient telegramClient) {
+    public void handleMedicationConversation(Long chatId, String text, MedicationConversation medicationConversation, TelegramClient telegramClient) {
         String oldValue = "";
-        switch (conversation.getState()) {
+        switch (medicationConversation.getState()) {
 
             case WAITING_NAME -> {
                 if (!text.equals("-")) {
-                    conversation.setName(text);
+                    medicationConversation.setName(text);
                 }
-                conversation.setState(ConversationState.WAITING_ACTIVE_SUBSTANCE);
+                medicationConversation.setState(ConversationState.WAITING_ACTIVE_SUBSTANCE);
 
-                if (conversation.getActiveSubstance() != null && !conversation.getActiveSubstance().isBlank()) {
-                    oldValue = " (current: " + conversation.getActiveSubstance() + ")";
+                if (medicationConversation.getActiveSubstance() != null && !medicationConversation.getActiveSubstance().isBlank()) {
+                    oldValue = " (current: " + medicationConversation.getActiveSubstance() + ")";
                 }
                 sendMessage(chatId, "Enter medication active substance:" + oldValue, telegramClient);
             }
 
             case WAITING_ACTIVE_SUBSTANCE -> {
                 if (!text.equals("-")) {
-                    conversation.setActiveSubstance(text);
+                    medicationConversation.setActiveSubstance(text);
                 }
-                conversation.setState(ConversationState.WAITING_DOSAGE);
+                medicationConversation.setState(ConversationState.WAITING_DOSAGE);
 
-                if (conversation.getDosage() != null && !conversation.getDosage().isBlank()) {
-                    oldValue = " (current: " + conversation.getDosage() + ")";
+                if (medicationConversation.getDosage() != null && !medicationConversation.getDosage().isBlank()) {
+                    oldValue = " (current: " + medicationConversation.getDosage() + ")";
                 }
 
                 sendMessage(chatId, "Enter medication dosage:" + oldValue, telegramClient);
@@ -84,16 +85,16 @@ public class TelegramMedicationService {
             case WAITING_DOSAGE -> {
                 try {
                     if(!text.equals("-")) {
-                        conversation.setDosage(text);
+                        medicationConversation.setDosage(text);
                     }
                 } catch (NumberFormatException e) {
-                    conversation.setState(ConversationState.WAITING_DOSAGE);
+                    medicationConversation.setState(ConversationState.WAITING_DOSAGE);
                     sendMessage(chatId, "Please enter a valid number", telegramClient);
                 }
-                conversation.setState(ConversationState.WAITING_FORM);
+                medicationConversation.setState(ConversationState.WAITING_FORM);
 
-                if (conversation.getForm() != null) {
-                    oldValue = " (current: " + conversation.getForm().getName() + ")";
+                if (medicationConversation.getForm() != null) {
+                    oldValue = " (current: " + medicationConversation.getForm().getName() + ")";
                 }
 
                 sendMenuMedicationForm(chatId, telegramClient, medicationFormService.getForms(), oldValue);
@@ -102,19 +103,19 @@ public class TelegramMedicationService {
             case WAITING_FORM -> {
                 if(!text.equals("-")) {
                     var form = medicationFormService.getFormByCode(text);
-                    if (conversation.getForm() != null) {
-                        oldValue = " (current: " + conversation.getForm().getName() + ")";
+                    if (medicationConversation.getForm() != null) {
+                        oldValue = " (current: " + medicationConversation.getForm().getName() + ")";
                     }
                     if (form == null) {
                         sendMenuMedicationForm(chatId, telegramClient, medicationFormService.getForms(),oldValue);
                         return;
                     }
-                    conversation.setForm(form);
+                    medicationConversation.setForm(form);
                 }
-                conversation.setState(ConversationState.WAITING_CATEGORY);
+                medicationConversation.setState(ConversationState.WAITING_CATEGORY);
 
-                if (conversation.getCategory() != null) {
-                    oldValue = " (current: " + conversation.getCategory().getName() + ")";
+                if (medicationConversation.getCategory() != null) {
+                    oldValue = " (current: " + medicationConversation.getCategory().getName() + ")";
                 }
 
                 sendMenuMedicationCategory(chatId, telegramClient, medicationCategoryService.getCategories(), oldValue);
@@ -123,18 +124,18 @@ public class TelegramMedicationService {
             case WAITING_CATEGORY -> {
                 if(!text.equals("-")) {
                     var form = medicationCategoryService.getCategoryByCode(text);
-                    if (conversation.getCategory() != null) {
-                        oldValue = " (current: " + conversation.getCategory().getName() + ")";
+                    if (medicationConversation.getCategory() != null) {
+                        oldValue = " (current: " + medicationConversation.getCategory().getName() + ")";
                     }
                     if (form == null) {
                         sendMenuMedicationCategory(chatId, telegramClient, medicationCategoryService.getCategories(), oldValue);
                         return;
                     }
-                    conversation.setCategory(form);
+                    medicationConversation.setCategory(form);
                 }
-                conversation.setState(ConversationState.WAITING_INSTRUCTIONS);
-                if (conversation.getInstructions() != null) {
-                    oldValue = " (current: " + conversation.getInstructions() + ")";
+                medicationConversation.setState(ConversationState.WAITING_INSTRUCTIONS);
+                if (medicationConversation.getInstructions() != null) {
+                    oldValue = " (current: " + medicationConversation.getInstructions() + ")";
                 }
 
                 hideKeyboard(chatId, "Enter medication instructions:" + oldValue, telegramClient);
@@ -142,19 +143,19 @@ public class TelegramMedicationService {
 
             case WAITING_INSTRUCTIONS -> {
                 if(!text.equals("-")) {
-                    conversation.setInstructions(text);
+                    medicationConversation.setInstructions(text);
                 }
-                conversation.setState(ConversationState.NONE);
+                medicationConversation.setState(ConversationState.NONE);
                 Medication medication;
-                if (conversation.getId() == null) {
-                    medication = medicationService.createMedication(mapper.toModel(conversation), chatId);
+                if (medicationConversation.getId() == null) {
+                    medication = medicationService.createMedication(mapper.toModel(medicationConversation), chatId);
                 } else {
-                    medication = medicationService.updateMedication(mapper.toModel(conversation), chatId);
+                    medication = medicationService.updateMedication(mapper.toModel(medicationConversation), chatId);
                 }
 
 
                 StringBuilder sb = new StringBuilder();
-                sb.append(conversation.getId() == null
+                sb.append(medicationConversation.getId() == null
                         ? "\uD83D\uDC8A Medication added:\n\n"
                         : "\uD83D\uDC8A Medication updated:\n\n");
 
@@ -165,7 +166,7 @@ public class TelegramMedicationService {
 
             default -> {
                 sendMessage(chatId, "Something went wrong", telegramClient);
-                conversation.setState(ConversationState.NONE);
+                medicationConversation.setState(ConversationState.NONE);
             }
         }
     }
@@ -286,15 +287,16 @@ public class TelegramMedicationService {
     }
 
     @SneakyThrows
-    public Conversation editMedication(Long chatId, Long medicationId, TelegramClient telegramClient) {
+    public MedicationConversation editMedication(Long chatId, Long medicationId, TelegramClient telegramClient) {
         var oldMedication = medicationService.getMedication(String.valueOf(medicationId), chatId);
         if(oldMedication == null) {
             throw new Exception("Medication was not found!");
         }
-        Conversation conversation = mapper.toConversation(oldMedication);
-        conversation.setState(ConversationState.WAITING_NAME);
+        MedicationConversation medicationConversation = mapper.toConversation(oldMedication);
+        medicationConversation.setState(ConversationState.WAITING_NAME);
 
-        sendMessage(chatId, "Enter medication name (send - to keep current): (" + conversation.getName() + ")", telegramClient);
-        return conversation;
+        sendMessage(chatId, "Enter medication name (send - to keep current): (" + medicationConversation.getName() + ")", telegramClient);
+        return medicationConversation;
     }
+
 }

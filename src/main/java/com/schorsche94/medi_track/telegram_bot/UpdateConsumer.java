@@ -1,8 +1,10 @@
 package com.schorsche94.medi_track.telegram_bot;
 
-import com.schorsche94.medi_track.telegram_bot.model.Conversation;
+import com.schorsche94.medi_track.telegram_bot.model.MedicationConversation;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
+import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramMedicationService;
+import com.schorsche94.medi_track.telegram_bot.service.TelegramScheduleService;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramUserService;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,9 +28,13 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
     private TelegramMedicationService telegramMedicationService;
 
     @Autowired
+    private TelegramScheduleService telegramScheduleService;
+
+    @Autowired
     private TelegramUserService telegramUserService;
 
-    private Map<Long, Conversation> conversations = new ConcurrentHashMap<>();
+    private Map<Long, MedicationConversation> medicationConversations = new ConcurrentHashMap<>();
+    private Map<Long, ScheduleConversation> scheduleConversations = new ConcurrentHashMap<>();
 
     @Autowired
     private TelegramClient telegramClient;
@@ -48,10 +54,15 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
         String messageText = update.getMessage().getText();
         Long chatId = update.getMessage().getChatId();
 
-        Conversation conversation = conversations.get(chatId);
+        MedicationConversation medicationConversation = medicationConversations.get(chatId);
+        ScheduleConversation scheduleConversation = scheduleConversations.get(chatId);
 
-        if (conversation != null && conversation.getState() != ConversationState.NONE) {
-            telegramMedicationService.handleConversation(chatId, messageText, conversation, telegramClient);
+        if (medicationConversation != null && medicationConversation.getState() != ConversationState.NONE) {
+            telegramMedicationService.handleMedicationConversation(chatId, messageText, medicationConversation, telegramClient);
+            return;
+        }
+        if (scheduleConversation != null && scheduleConversation.getState() != ConversationState.NONE) {
+            telegramScheduleService.handleScheduleConversation(chatId, messageText, scheduleConversation, telegramClient);
             return;
         }
 
@@ -78,7 +89,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
             try{
              var conversation = telegramMedicationService.editMedication(chatId, medicationId, telegramClient);
-             conversations.put(chatId, conversation);
+             medicationConversations.put(chatId, conversation);
             } catch (Exception e) {
                 sendMessage(chatId, "Failed to edit medication!", telegramClient);
             }
@@ -95,6 +106,8 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
         if (data.startsWith("schedule_medication:")) {
             Long medicationId = Long.valueOf(data.split(":")[1]);
+            var conversation = telegramScheduleService.scheduleMedication(chatId, medicationId, telegramClient);
+            scheduleConversations.put(chatId, conversation);
 
             return;
         }
@@ -109,7 +122,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             case "menu_medication" -> sendMenuMedication(chatId, telegramClient);
             case "add_medication" -> {
                 var conversation = telegramMedicationService.addMedication(chatId, telegramClient);
-                conversations.put(chatId, conversation);
+                medicationConversations.put(chatId, conversation);
             }
             default -> sendMessage(chatId, "Unknown operation!", telegramClient);
         }
