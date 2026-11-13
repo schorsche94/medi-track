@@ -13,12 +13,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.SneakyThrows;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
@@ -27,6 +27,8 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeParseException;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,10 +66,17 @@ public class TelegramScheduleService {
 
             case WAITING_DURATION -> {
                 if (!text.equals("-")) {
-                    if (!StringUtils.isNumeric(text)) {
-                        throw new IllegalArgumentException("Value should be string");
+                    Integer duration;
+                    try {
+                        duration = Integer.valueOf(text);
+                    } catch (NumberFormatException e) {
+                        duration = null;
                     }
-                    scheduleConversation.setDurationDays(Integer.valueOf(text));
+                    if (duration == null || duration <= 0) {
+                        sendMessage(chatId, "Treatment duration must be a positive number of days, or - to skip.", telegramClient);
+                        return;
+                    }
+                    scheduleConversation.setDurationDays(duration);
                 }
                 scheduleConversation.setState(ConversationState.WAITING_START_DATE);
 
@@ -78,9 +87,37 @@ public class TelegramScheduleService {
             }
 
             case WAITING_START_DATE -> {
+                LocalDate startDate = scheduleConversation.getStartDate();
                 if (!text.equals("-")) {
-                    scheduleConversation.setStartDate(LocalDate.parse(text));
+                    try {
+                        startDate = LocalDate.parse(text);
+                    } catch (DateTimeParseException e) {
+                        sendMessage(chatId, "Invalid date. Enter the start date as YYYY-MM-DD, or - to keep the current value.", telegramClient);
+                        return;
+                    }
                 }
+                if (startDate != null && startDate.isBefore(LocalDate.now())) {
+                    sendMessage(chatId, "Start date cannot be in the past. Today is allowed; enter YYYY-MM-DD.", telegramClient);
+                    return;
+                }
+                if (!text.equals("-")) {
+                    scheduleConversation.setStartDate(startDate);
+                }
+
+                if (scheduleConversation.getDurationDays() != null) {
+                    if (startDate == null) {
+                        sendMessage(chatId, "A start date is required when treatment duration is set. Enter YYYY-MM-DD.", telegramClient);
+                        return;
+                    }
+                    scheduleConversation.setEndDate(startDate.plusDays(scheduleConversation.getDurationDays() - 1L));
+                    scheduleConversation.setState(ConversationState.WAITING_FREQUENCY_PERIOD);
+                    if (scheduleConversation.getFrequencyPerDay() != null) {
+                        oldValue = " (current: " + scheduleConversation.getFrequencyPerDay() + ")";
+                    }
+                    sendMessage(chatId, "Frequency (times per day):" + oldValue, telegramClient);
+                    return;
+                }
+
                 scheduleConversation.setState(ConversationState.WAITING_END_DATE);
 
                 if (scheduleConversation.getEndDate() != null) {
@@ -91,9 +128,32 @@ public class TelegramScheduleService {
             }
 
             case WAITING_END_DATE -> {
-
+                LocalDate endDate = scheduleConversation.getEndDate();
                 if (!text.equals("-")) {
-                    scheduleConversation.setEndDate(LocalDate.parse(text));
+                    try {
+                        endDate = LocalDate.parse(text);
+                    } catch (DateTimeParseException e) {
+                        sendMessage(chatId, "Invalid date. Enter the end date as YYYY-MM-DD, or - to keep the current value.", telegramClient);
+                        return;
+                    }
+                }
+                if (endDate != null) {
+                    if (scheduleConversation.getStartDate() == null) {
+                        sendMessage(chatId, "Enter a start date before setting an end date.", telegramClient);
+                        return;
+                    }
+                    if (!endDate.isAfter(scheduleConversation.getStartDate())) {
+                        sendMessage(chatId, "End date must be after the start date. Enter YYYY-MM-DD.", telegramClient);
+                        return;
+                    }
+                    if (scheduleConversation.getDurationDays() != null
+                            && ChronoUnit.DAYS.between(scheduleConversation.getStartDate(), endDate) + 1
+                            != scheduleConversation.getDurationDays()) {
+                        sendMessage(chatId, "The number of days from start through end, counting both dates, must match the treatment duration ("
+                                + scheduleConversation.getDurationDays() + " days). Enter a matching end date.", telegramClient);
+                        return;
+                    }
+                    scheduleConversation.setEndDate(endDate);
                 }
 
                 scheduleConversation.setState(ConversationState.WAITING_FREQUENCY_PERIOD);
@@ -245,6 +305,9 @@ public class TelegramScheduleService {
 //        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup(rowsInline);
 //        markupInline.setKeyboard(rowsInline);
 //        sendMessage.setReplyMarkup(markupInline);
+        ReplyKeyboardRemove keyboardRemove = new ReplyKeyboardRemove(true);
+
+        sendMessage.setReplyMarkup(keyboardRemove);
 
         telegramClient.execute(sendMessage);
     }

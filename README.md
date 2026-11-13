@@ -48,7 +48,7 @@ Start the Spring Boot application from the project root:
 
 On Windows, use `mvnw.cmd spring-boot:run` instead. Alternatively, run `com.schorsche94.medi_track.MediTrackApplication` from your IDE. Flyway applies the migrations on startup.
 
-Open Telegram and start a conversation with `@medi_track_bot` using `/start`. Use the medication menu to add or list medications. To schedule a medication, open its menu and select **Schedule medication**, then answer the prompts for treatment duration, start and end dates, daily frequency, scheduled doses, interval, pause, and intake instructions.
+Open Telegram and start a conversation with `@medi_track_bot` using `/start`. Use the medication menu to add or list medications. To schedule a medication, open its menu and select **Schedule medication**, then answer the prompts for treatment duration, start date, daily frequency, scheduled doses, interval, pause, and intake instructions. If you provide a duration, the bot calculates the end date from the start date, counting both the start and end dates. If duration is omitted, it asks for an end date, which must be after the start date. Start dates can be today or later.
 
 For scheduled doses, enter a valid JSON array, for example:
 
