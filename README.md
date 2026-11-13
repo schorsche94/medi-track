@@ -8,8 +8,9 @@ Medi Track is a Spring Boot application with a Telegram bot for keeping a person
 - Add a medication by entering its name, active substance, dosage, form, category, and instructions.
 - List medications visible to a user, including shared catalog entries and medications they added.
 - Delete a medication added by the current user.
+- Create a medication schedule from a medication's menu, including dates, frequency, dose times, intervals, pauses, and intake instructions.
 
-The database includes tables for schedules, but scheduling and the “medications for today” view are not implemented yet. Edit and schedule buttons are also placeholders.
+Schedules are stored in PostgreSQL and linked to the selected medication and Telegram user. The “medications for today” view and medication editing are not currently available.
 
 ## Requirements
 
@@ -47,7 +48,18 @@ Start the Spring Boot application from the project root:
 
 On Windows, use `mvnw.cmd spring-boot:run` instead. Alternatively, run `com.schorsche94.medi_track.MediTrackApplication` from your IDE. Flyway applies the migrations on startup.
 
-Open Telegram and start a medicationConversation with `@medi_track_bot` using `/start`. Use the medication menu to add or list medications. The bot token must be configured before the application starts.
+Open Telegram and start a conversation with `@medi_track_bot` using `/start`. Use the medication menu to add or list medications. To schedule a medication, open its menu and select **Schedule medication**, then answer the prompts for treatment duration, start and end dates, daily frequency, scheduled doses, interval, pause, and intake instructions.
+
+For scheduled doses, enter a valid JSON array, for example:
+
+```json
+[
+  {"time": "08:00", "dosage": "1 tablet"},
+  {"time": "20:00", "dosage": "500 mg"}
+]
+```
+
+The bot rejects malformed JSON and values that are not arrays, and lets you try again. Enter `-` to leave an optional value unchanged or skip it. The bot token must be configured before the application starts.
 
 To stop the local database:
 
@@ -69,7 +81,7 @@ On Windows:
 
 ## Project layout
 
-- `src/main/java/.../telegram_bot` — Telegram update handling, menus, and medication medicationConversation flow.
+- `src/main/java/.../telegram_bot` — Telegram update handling, menus, and medication and schedule conversation flows.
 - `src/main/java/.../service` — application services and ownership checks.
 - `src/main/java/.../domain` — medication models, JPA entities, repositories, and mappers.
 - `src/main/resources/db/migration` — Flyway schema and reference data migrations.
