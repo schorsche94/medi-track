@@ -3,7 +3,6 @@ package com.schorsche94.medi_track.domain.entity;
 import com.schorsche94.medi_track.domain.enums.IntakeInstruction;
 import com.schorsche94.medi_track.domain.enums.ScheduleStatus;
 import jakarta.persistence.Column;
-import org.hibernate.annotations.ColumnTransformer;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -16,10 +15,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnTransformer;
 
 import java.time.LocalDate;
 

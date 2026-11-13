@@ -1,36 +1,26 @@
 package com.schorsche94.medi_track.telegram_bot.service;
 
-import com.schorsche94.medi_track.domain.enums.IntakeInstruction;
-import com.schorsche94.medi_track.domain.enums.ScheduleStatus;
-import com.schorsche94.medi_track.domain.model.Schedule;
-import com.schorsche94.medi_track.service.MedicationService;
-import com.schorsche94.medi_track.service.ScheduleService;
-import com.schorsche94.medi_track.telegram_bot.mapper.TelegramMedicationMapper;
-import com.schorsche94.medi_track.telegram_bot.mapper.TelegramScheduleMapper;
-import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
-import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.schorsche94.medi_track.domain.enums.IntakeInstruction;
+import com.schorsche94.medi_track.domain.enums.ScheduleStatus;
+import com.schorsche94.medi_track.domain.model.Schedule;
+import com.schorsche94.medi_track.service.ScheduleService;
+import com.schorsche94.medi_track.telegram_bot.mapper.TelegramScheduleMapper;
+import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
+import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
 import lombok.SneakyThrows;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardButton;
-import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.KeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
 
 import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuIntakeInstructionsForm;
 import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuStatusForm;

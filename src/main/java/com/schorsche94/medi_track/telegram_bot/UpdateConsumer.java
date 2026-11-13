@@ -1,7 +1,7 @@
 package com.schorsche94.medi_track.telegram_bot;
 
-import com.schorsche94.medi_track.telegram_bot.model.MedicationConversation;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
+import com.schorsche94.medi_track.telegram_bot.model.MedicationConversation;
 import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramMedicationService;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramScheduleService;

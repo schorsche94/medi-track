@@ -2,9 +2,7 @@ package com.schorsche94.medi_track.domain.repository.impl;
 
 import com.schorsche94.medi_track.domain.model.User;
 import com.schorsche94.medi_track.domain.repository.UserRepository;
-import com.schorsche94.medi_track.domain.repository.jpa.MedicationJpaRepository;
 import com.schorsche94.medi_track.domain.repository.jpa.UserJpaRepository;
-import com.schorsche94.medi_track.domain.repository.mapper.MedicationMapper;
 import com.schorsche94.medi_track.domain.repository.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;

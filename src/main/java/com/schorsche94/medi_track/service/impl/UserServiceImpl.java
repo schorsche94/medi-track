@@ -1,7 +1,6 @@
 package com.schorsche94.medi_track.service.impl;
 
 import com.schorsche94.medi_track.domain.model.User;
-import com.schorsche94.medi_track.domain.repository.MedicationRepository;
 import com.schorsche94.medi_track.domain.repository.UserRepository;
 import com.schorsche94.medi_track.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;

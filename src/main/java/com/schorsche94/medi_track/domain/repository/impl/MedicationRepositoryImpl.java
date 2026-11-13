@@ -1,10 +1,10 @@
 package com.schorsche94.medi_track.domain.repository.impl;
 
 import com.schorsche94.medi_track.domain.model.Medication;
-import com.schorsche94.medi_track.domain.repository.jpa.MedicationJpaRepository;
+import com.schorsche94.medi_track.domain.repository.MedicationRepository;
 import com.schorsche94.medi_track.domain.repository.jpa.MedicationCategoryJpaRepository;
 import com.schorsche94.medi_track.domain.repository.jpa.MedicationFormJpaRepository;
-import com.schorsche94.medi_track.domain.repository.MedicationRepository;
+import com.schorsche94.medi_track.domain.repository.jpa.MedicationJpaRepository;
 import com.schorsche94.medi_track.domain.repository.mapper.MedicationMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
