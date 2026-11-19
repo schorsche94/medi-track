@@ -21,15 +21,15 @@ public class DailyScheduleJob {
         this.scheduleService = scheduleService;
     }
 
-    @Scheduled(cron = "0 0 6 * * *") // каждый день в 06:00
+    @Scheduled(cron = "0 0 6 * * *") // every day at 06:00
     public void scheduledPrepare() {
-        log.info("Сработал крон подготовки графика");
+        log.info("Scheduled schedule preparation triggered");
         scheduleService.prepareIfNeeded(LocalDate.now());
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
-        log.info("Приложение стартовало — проверяем график на сегодня");
+        log.info("Application started — checking today's schedule");
         scheduleService.prepareIfNeeded(LocalDate.now());
     }
 }

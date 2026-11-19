@@ -19,9 +19,16 @@ services:
 
   mongodb:
     image: mongodb/mongodb-community-server:8.0-ubi8
+    container_name: medi_track_mongodb
+    restart: always
     environment:
       MONGODB_INITDB_ROOT_USERNAME: ${DB_USER}
       MONGODB_INITDB_ROOT_PASSWORD: ${DB_PASSWORD}
+    healthcheck:
+      test: ["CMD", "mongosh", "--quiet", "--eval", "db.adminCommand('ping').ok"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
     ports:
       - "27017:27017"
     volumes:

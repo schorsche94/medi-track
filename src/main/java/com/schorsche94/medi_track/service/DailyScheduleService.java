@@ -23,7 +23,7 @@ public class DailyScheduleService {
 
     private final SchedulePreparedRepository preparedRepository;
     private final MedicationIntakeRepository intakeRepository;
-    // private final UserMedicationPlanRepository planRepository;  // откуда брать расписания
+    // private final UserMedicationPlanRepository planRepository;  // source of schedules
     // private final QueueSender queueSender;
 
     public DailyScheduleService(SchedulePreparedRepository preparedRepository,
@@ -34,42 +34,42 @@ public class DailyScheduleService {
 
     public void prepareIfNeeded(LocalDate date) {
         if (preparedRepository.existsByDate(date)) {
-            log.info("График на {} уже составлен — пропускаем", date);
+            log.info("Schedule for {} is already prepared — skipping", date);
             return;
         }
 
-        log.info("Начинаем составление графика на {}", date);
+        log.info("Preparing schedule for {}", date);
 
         try {
             List<MedicationIntake> intakes = buildIntakesForDate(date);
 
             if (!intakes.isEmpty()) {
                 intakeRepository.saveAll(intakes);
-                log.info("Создано {} записей приёма на {}", intakes.size(), date);
+                log.info("Created {} medication intake records for {}", intakes.size(), date);
 
-                // TODO: отправить в очередь
+                // TODO: send to the queue
                 // queueSender.sendAll(intakes);
             } else {
-                log.info("На {} нет запланированных приёмов", date);
+                log.info("No medication intakes are scheduled for {}", date);
             }
 
             preparedRepository.markPrepared(date);
-            log.info("График на {} успешно составлен", date);
+            log.info("Schedule for {} prepared successfully", date);
 
         } catch (Exception e) {
-            log.error("Ошибка при составлении графика на {}", date, e);
-            throw e; // флаг не ставим → попробуем позже
+            log.error("Failed to prepare schedule for {}", date, e);
+            throw e; // Leave the flag unset so preparation can be retried later.
         }
     }
 
     /**
-     * Здесь будет реальная логика.
-     * Сейчас — заглушка, чтобы было понятно, что должно происходить.
+     * The real implementation will go here.
+     * This is currently a placeholder to illustrate the expected behavior.
      */
     private List<MedicationIntake> buildIntakesForDate(LocalDate date) {
         List<MedicationIntake> result = new ArrayList<>();
 
-        // TODO: заменить на реальное чтение планов пользователей
+        // TODO: replace with actual user plan retrieval
         // List<UserMedicationPlan> plans = planRepository.findActivePlansForDate(date);
         // for (UserMedicationPlan plan : plans) {
         //     for (LocalTime time : plan.getTimes()) {
@@ -77,18 +77,18 @@ public class DailyScheduleService {
         //     }
         // }
 
-        // --- временная заглушка для проверки ---
+        // --- Temporary test placeholder ---
         result.add(createIntake(
                 "user-1",
                 "med-1",
-                "Ибупрофен 200мг",
+                "Ibuprofen 200 mg",
                 date,
                 LocalTime.of(9, 0)
         ));
         result.add(createIntake(
                 "user-1",
                 "med-1",
-                "Ибупрофен 200мг",
+                "Ibuprofen 200 mg",
                 date,
                 LocalTime.of(21, 0)
         ));
@@ -103,7 +103,7 @@ public class DailyScheduleService {
                                           LocalTime time) {
 
         Instant scheduledAt = LocalDateTime.of(date, time)
-                .toInstant(ZoneOffset.UTC); // или ZoneId.of("Europe/Moscow")
+                .toInstant(ZoneOffset.UTC); // Alternatively, use ZoneId.of("Europe/Moscow").
 
         Instant now = Instant.now();
 
