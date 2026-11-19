@@ -7,5 +7,4 @@ import java.time.LocalDate;
 
 public interface MedicationIntakeRepository extends MongoRepository<MedicationIntake, String> {
 
-    boolean existsByScheduledDate(LocalDate date);
 }

@@ -11,6 +11,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.util.List;
 
 @Component
@@ -32,7 +33,7 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Schedule> getSchedulesForToday() {
-        return repository.findAll().stream().map(mapper::toModel).toList();
+        return repository.findByDate(LocalDate.now()).stream().map(mapper::toModel).toList();
     }
 
     @Override

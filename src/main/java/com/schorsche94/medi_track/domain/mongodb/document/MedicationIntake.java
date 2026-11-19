@@ -28,9 +28,8 @@ public class MedicationIntake {
     private String medicationId;
     private String medicationName;
 
-    private LocalDate scheduledDate;
-    private LocalTime scheduledTime;
     private Instant scheduledAt;
+    private String dosage;
 
     @Builder.Default
     private IntakeStatus status = IntakeStatus.PENDING;
