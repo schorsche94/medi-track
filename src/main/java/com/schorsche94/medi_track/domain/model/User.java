@@ -25,4 +25,8 @@ public class User {
     private String username;
 
     private LocalDateTime registeredAt;
+
+    private LocalDateTime createdDate;
+
+    private LocalDateTime updatedDate;
 }

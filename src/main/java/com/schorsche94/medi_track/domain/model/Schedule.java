@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Setter
 @Getter
@@ -19,6 +20,10 @@ import java.time.LocalDate;
 @Builder
 public class Schedule {
     private Long id;
+
+    private LocalDateTime createdDate;
+
+    private LocalDateTime updatedDate;
 
     private MedicationEntity medicine;
 

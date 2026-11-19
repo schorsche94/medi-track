@@ -1,5 +1,7 @@
 package com.schorsche94.medi_track.domain.model;
 
+import java.time.LocalDateTime;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -13,6 +15,8 @@ import lombok.Setter;
 @AllArgsConstructor
 public class MedicationForm {
     private Long id;
+    private LocalDateTime createdDate;
+    private LocalDateTime updatedDate;
     private String code;
     private String name;
     private String description;
