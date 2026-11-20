@@ -21,7 +21,7 @@ public class DailyScheduleJob {
         this.scheduleService = scheduleService;
     }
 
-    @Scheduled(cron = "0 0 0 * * *") // every day at 00:00
+    @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Chisinau") // every day at local midnight
     public void scheduledPrepare() {
         log.info("Scheduled schedule preparation triggered");
         scheduleService.prepareIfNeeded(LocalDate.now());

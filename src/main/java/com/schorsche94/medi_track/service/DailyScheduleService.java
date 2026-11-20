@@ -2,12 +2,16 @@ package com.schorsche94.medi_track.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.schorsche94.medi_track.domain.model.MedicationIntake;
+import com.schorsche94.medi_track.domain.model.Medication;
+import com.schorsche94.medi_track.domain.model.MedicationIntakeDetails;
 import com.schorsche94.medi_track.domain.model.Schedule;
 import com.schorsche94.medi_track.domain.model.ScheduledTimeDosage;
-import com.schorsche94.medi_track.domain.mongodb.document.MedicationIntake;
 import com.schorsche94.medi_track.domain.mongodb.enums.IntakeStatus;
+import com.schorsche94.medi_track.domain.mongodb.mapper.MedicationIntakeMapper;
 import com.schorsche94.medi_track.domain.mongodb.repository.MedicationIntakeRepository;
 import com.schorsche94.medi_track.domain.mongodb.repository.SchedulePreparedRepository;
+import com.schorsche94.medi_track.domain.repository.mapper.MedicationMapper;
 import com.schorsche94.medi_track.domain.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -18,7 +22,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.ZoneOffset;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,9 +36,10 @@ public class DailyScheduleService {
 
     private final SchedulePreparedRepository preparedRepository;
     private final MedicationIntakeRepository intakeRepository;
+    private final MedicationIntakeMapper intakeMapper;
     private final ScheduleRepository scheduleRepository;
+    private final MedicationMapper medicationMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
-    // private final QueueSender queueSender;
 
     public void prepareIfNeeded(LocalDate date) {
         if (preparedRepository.existsByDate(date)) {
@@ -48,11 +53,9 @@ public class DailyScheduleService {
             List<MedicationIntake> intakes = buildIntakesForDate(date);
 
             if (!intakes.isEmpty()) {
-                intakeRepository.saveAll(intakes);
+                intakeRepository.saveAll(intakeMapper.toDocumentList(intakes));
                 log.info("Created {} medication intake records for {}", intakes.size(), date);
 
-                // TODO: send to the queue
-                // queueSender.sendAll(intakes);
             } else {
                 log.info("No medication intakes are scheduled for {}", date);
             }
@@ -84,11 +87,11 @@ public class DailyScheduleService {
                     );
                 }
 
+                MedicationIntakeDetails medication = createMedicationSnapshot(schedule);
                 for (ScheduledTimeDosage scheduledTime : scheduledTimes) {
                     result.add(createIntake(
                             String.valueOf(schedule.getUser().getChatId()),
-                            String.valueOf(schedule.getMedicine().getId()),
-                            schedule.getMedicine().getName(),
+                            medication,
                             date,
                             LocalTime.parse(scheduledTime.time()),
                             scheduledTime.dosage()
@@ -101,21 +104,20 @@ public class DailyScheduleService {
     }
 
     private MedicationIntake createIntake(String userId,
-                                          String medicationId,
-                                          String medicationName,
+                                          MedicationIntakeDetails medication,
                                           LocalDate date,
                                           LocalTime time,
                                           String dosage) {
 
         Instant scheduledAt = LocalDateTime.of(date, time)
-                .toInstant(ZoneOffset.UTC);
+                .atZone(ZoneId.of("Europe/Chisinau"))
+                .toInstant();
 
         Instant now = Instant.now();
 
         MedicationIntake intake = new MedicationIntake();
         intake.setUserId(userId);
-        intake.setMedicationId(medicationId);
-        intake.setMedicationName(medicationName);
+        intake.setMedication(medication);
         intake.setScheduledAt(scheduledAt);
         intake.setDosage(dosage);
         intake.setStatus(IntakeStatus.PENDING);
@@ -123,5 +125,24 @@ public class DailyScheduleService {
         intake.setUpdatedAt(now);
 
         return intake;
+    }
+
+    private MedicationIntakeDetails createMedicationSnapshot(Schedule schedule) {
+        Medication medication = medicationMapper.toModel(schedule.getMedicine());
+        return MedicationIntakeDetails.builder()
+                .id(medication.getId())
+                .createdDate(medication.getCreatedDate())
+                .updatedDate(medication.getUpdatedDate())
+                .name(medication.getName())
+                .activeSubstance(medication.getActiveSubstance())
+                .dosage(medication.getDosage())
+                .form(medication.getForm())
+                .category(medication.getCategory())
+                .description(medication.getDescription())
+                .instructions(medication.getInstructions())
+                .addedBy(medication.getAddedBy())
+                .intakeInstruction(schedule.getIntakeInstruction())
+                .customInstruction(schedule.getCustomInstruction())
+                .build();
     }
 }

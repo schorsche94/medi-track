@@ -1,10 +1,16 @@
 package com.schorsche94.medi_track.domain.mongodb.repository;
 
-import com.schorsche94.medi_track.domain.mongodb.document.MedicationIntake;
+import com.schorsche94.medi_track.domain.mongodb.document.MedicationIntakeDoc;
+import com.schorsche94.medi_track.domain.mongodb.enums.IntakeStatus;
 import org.springframework.data.mongodb.repository.MongoRepository;
 
-import java.time.LocalDate;
+import java.time.Instant;
+import java.util.List;
 
-public interface MedicationIntakeRepository extends MongoRepository<MedicationIntake, String> {
+public interface MedicationIntakeRepository extends MongoRepository<MedicationIntakeDoc, String> {
 
+    List<MedicationIntakeDoc> findByStatusAndPublishedToKafkaFalseAndScheduledAtLessThanEqual(
+            IntakeStatus status,
+            Instant scheduledAt
+    );
 }

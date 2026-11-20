@@ -17,7 +17,9 @@ public interface ScheduleJpaRepository extends JpaRepository<ScheduleEntity, Lon
 
     @Query("""
             SELECT s FROM ScheduleEntity s
-            JOIN FETCH s.medicine
+            JOIN FETCH s.medicine medicine
+            LEFT JOIN FETCH medicine.form
+            LEFT JOIN FETCH medicine.category
             LEFT JOIN FETCH s.user
             WHERE :date BETWEEN s.startDate AND s.endDate
             """)
