@@ -20,6 +20,9 @@ public class MedicationIntake {
     private String userId;
     private MedicationIntakeDetails medication;
 
+    // Local wall-clock value for display/audit; scheduledAt remains the UTC instant used for dispatch.
+    private String scheduledLocal;
+    private String timeZone;
     private Instant scheduledAt;
     private String dosage;
     private boolean publishedToKafka;

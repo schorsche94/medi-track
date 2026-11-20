@@ -109,15 +109,17 @@ public class DailyScheduleService {
                                           LocalTime time,
                                           String dosage) {
 
-        Instant scheduledAt = LocalDateTime.of(date, time)
-                .atZone(ZoneId.of("Europe/Chisinau"))
-                .toInstant();
+        ZoneId scheduleZone = ZoneId.of("Europe/Chisinau");
+        LocalDateTime scheduledLocal = LocalDateTime.of(date, time);
+        Instant scheduledAt = scheduledLocal.atZone(scheduleZone).toInstant();
 
         Instant now = Instant.now();
 
         MedicationIntake intake = new MedicationIntake();
         intake.setUserId(userId);
         intake.setMedication(medication);
+        intake.setScheduledLocal(scheduledLocal.toString());
+        intake.setTimeZone(scheduleZone.getId());
         intake.setScheduledAt(scheduledAt);
         intake.setDosage(dosage);
         intake.setStatus(IntakeStatus.PENDING);

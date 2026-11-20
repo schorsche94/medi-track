@@ -25,6 +25,8 @@ public class MedicationIntakeDoc {
 
     private String userId;
     private MedicationIntakeDetails medication;
+    private String scheduledLocal;
+    private String timeZone;
     private Instant scheduledAt;
     private String dosage;
 

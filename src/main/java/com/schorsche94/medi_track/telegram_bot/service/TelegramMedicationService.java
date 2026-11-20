@@ -298,4 +298,31 @@ public class TelegramMedicationService {
         return medicationConversation;
     }
 
+    public static void sendMedicationIntake(Long chatId, TelegramClient telegramClient, StringBuilder sb, Medication medication) throws TelegramApiException {
+        SendMessage sendMessage = SendMessage.builder()
+                .text(sb.toString())
+                .chatId(chatId)
+                .build();
+        sendMessage.setParseMode("HTML");
+
+        List<InlineKeyboardRow> rowsInline = new ArrayList<>();
+
+        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Medication taken").callbackData("taken_medication:" + medication.getId()).build();
+        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Medication skipped").callbackData("skipped_medication:" + medication.getId()).build();
+        InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
+
+//        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Medication postponed").callbackData("postponed_medication:" + medication.getId()).build();
+
+//        InlineKeyboardRow row2 = new InlineKeyboardRow(button3);
+
+        rowsInline.add(row1);
+//        rowsInline.add(row2);
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
+
+        telegramClient.execute(sendMessage);
+    }
+
 }
