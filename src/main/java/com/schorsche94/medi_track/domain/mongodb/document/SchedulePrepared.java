@@ -23,7 +23,10 @@ public class SchedulePrepared {
 
     private LocalDate date;
 
+    private String dateLocal;
+
     public SchedulePrepared(LocalDate date) {
         this.date = date;
+        this.dateLocal = date.toString();
     }
 }

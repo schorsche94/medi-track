@@ -12,6 +12,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -33,7 +34,13 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     @Override
     @Transactional(readOnly = true)
     public List<Schedule> getSchedulesForToday() {
-        return repository.findByDate(LocalDate.now()).stream().map(mapper::toModel).toList();
+        return getSchedulesForDate(LocalDate.now(ZoneId.of("Europe/Chisinau")));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<Schedule> getSchedulesForDate(LocalDate date) {
+        return repository.findByDate(date).stream().map(mapper::toModel).toList();
     }
 
     @Override

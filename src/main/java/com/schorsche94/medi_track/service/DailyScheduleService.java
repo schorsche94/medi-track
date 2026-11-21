@@ -72,7 +72,7 @@ public class DailyScheduleService {
     private List<MedicationIntake> buildIntakesForDate(LocalDate date) {
         List<MedicationIntake> result = new ArrayList<>();
 
-        List<Schedule> todaySchedules = scheduleRepository.getSchedulesForToday();
+        List<Schedule> todaySchedules = scheduleRepository.getSchedulesForDate(date);
         for (Schedule schedule : todaySchedules) {
             if(ACTIVE.equals(schedule.getStatus())) {
                 List<ScheduledTimeDosage> scheduledTimes;

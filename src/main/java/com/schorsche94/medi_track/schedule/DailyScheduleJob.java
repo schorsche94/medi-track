@@ -9,9 +9,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 
 @Component
 public class DailyScheduleJob {
+
+    private static final ZoneId SCHEDULE_ZONE = ZoneId.of("Europe/Chisinau");
 
     private static final Logger log = LoggerFactory.getLogger(DailyScheduleJob.class);
 
@@ -24,12 +27,12 @@ public class DailyScheduleJob {
     @Scheduled(cron = "0 0 0 * * *", zone = "Europe/Chisinau") // every day at local midnight
     public void scheduledPrepare() {
         log.info("Scheduled schedule preparation triggered");
-        scheduleService.prepareIfNeeded(LocalDate.now());
+        scheduleService.prepareIfNeeded(LocalDate.now(SCHEDULE_ZONE));
     }
 
     @EventListener(ApplicationReadyEvent.class)
     public void onApplicationReady() {
         log.info("Application started — checking today's schedule");
-        scheduleService.prepareIfNeeded(LocalDate.now());
+        scheduleService.prepareIfNeeded(LocalDate.now(SCHEDULE_ZONE));
     }
 }
