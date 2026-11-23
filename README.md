@@ -1,6 +1,6 @@
 # Medi Track
 
-Medi Track is a Spring Boot application with a Telegram bot for keeping a personal medication list. It stores medications and Telegram users in PostgreSQL and uses Flyway to create and initialize the database schema.
+Medi Track is a Spring Boot application with a Telegram bot for managing medications and schedules. It stores medication and schedule data in PostgreSQL, daily medication intakes in MongoDB, and dispatches reminders through Kafka. Flyway creates and initializes the PostgreSQL schema.
 
 ## Features
 
@@ -9,8 +9,9 @@ Medi Track is a Spring Boot application with a Telegram bot for keeping a person
 - List medications visible to a user, including shared catalog entries and medications they added.
 - Delete a medication added by the current user.
 - Create a medication schedule from a medication's menu, including dates, frequency, dose times, intervals, pauses, and intake instructions.
+- View today's medication intakes and update an intake's status.
 
-Schedules are stored in PostgreSQL and linked to the selected medication and Telegram user. The “medications for today” view and medication editing are not currently available.
+Schedules are stored in PostgreSQL and linked to the selected medication and Telegram user. Daily intake records are stored in MongoDB. Intake timestamps are stored as UTC instants and displayed as `yyyy-MM-dd HH:mm` in UTC (for example, `2026-11-23T20:00:00Z` displays as `2026-11-23 20:00`).
 
 ## Requirements
 
@@ -34,10 +35,10 @@ The PostgreSQL connection in `application.properties` expects database `medicati
 
 ## Run locally
 
-Start PostgreSQL:
+Start PostgreSQL, MongoDB, and Kafka:
 
 ```bash
-docker compose up -d postgres_db
+docker compose up -d postgres_db mongodb kafka
 ```
 
 Start the Spring Boot application from the project root:
@@ -91,4 +92,4 @@ On Windows:
 
 - The `medications` seed insert in `V2__seed_medications.sql` is currently commented out. A new database gets the medication forms and categories, but no shared medication catalog entries.
 - User-added medications are associated with the Telegram chat ID. Only the user who added a medication can delete it.
-- The Compose file also defines a MongoDB service, but the current application flow uses PostgreSQL; MongoDB is not required for the features described above.
+- MongoDB stores daily medication intake records; Kafka dispatches due medication reminders.
