@@ -36,6 +36,9 @@ public class MedicationIntakeDoc {
     @Builder.Default
     private IntakeStatus status = IntakeStatus.PENDING;
 
+    private Instant statusUpdatedAt;
+    private String statusUpdatedAtLocal;
+
     private Instant takenAt;
     private Instant postponedTo;
     private String skipReason;

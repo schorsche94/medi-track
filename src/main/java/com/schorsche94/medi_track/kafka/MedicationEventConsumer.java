@@ -71,6 +71,7 @@ public class MedicationEventConsumer {
 
         try {
             TelegramMedicationService.sendMedicationIntake(
+                    intake.getId(),
                     Long.valueOf(intake.getUserId()),
                     telegramClient,
                     message,

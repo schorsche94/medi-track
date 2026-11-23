@@ -1,6 +1,5 @@
 package com.schorsche94.medi_track.domain.model;
 
-import com.schorsche94.medi_track.domain.entity.MedicationEntity;
 import com.schorsche94.medi_track.domain.entity.UserEntity;
 import com.schorsche94.medi_track.domain.enums.IntakeInstruction;
 import com.schorsche94.medi_track.domain.enums.ScheduleStatus;
@@ -25,7 +24,7 @@ public class Schedule {
 
     private LocalDateTime updatedDate;
 
-    private MedicationEntity medicine;
+    private Medication medicine;
 
     private UserEntity user;
 

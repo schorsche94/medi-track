@@ -11,7 +11,6 @@ import com.schorsche94.medi_track.domain.mongodb.enums.IntakeStatus;
 import com.schorsche94.medi_track.domain.mongodb.mapper.MedicationIntakeMapper;
 import com.schorsche94.medi_track.domain.mongodb.repository.MedicationIntakeRepository;
 import com.schorsche94.medi_track.domain.mongodb.repository.SchedulePreparedRepository;
-import com.schorsche94.medi_track.domain.repository.mapper.MedicationMapper;
 import com.schorsche94.medi_track.domain.repository.ScheduleRepository;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
@@ -38,7 +37,6 @@ public class DailyScheduleService {
     private final MedicationIntakeRepository intakeRepository;
     private final MedicationIntakeMapper intakeMapper;
     private final ScheduleRepository scheduleRepository;
-    private final MedicationMapper medicationMapper;
     private final ObjectMapper objectMapper = new ObjectMapper();
 
     public void prepareIfNeeded(LocalDate date) {
@@ -130,7 +128,7 @@ public class DailyScheduleService {
     }
 
     private MedicationIntakeDetails createMedicationSnapshot(Schedule schedule) {
-        Medication medication = medicationMapper.toModel(schedule.getMedicine());
+        Medication medication = schedule.getMedicine();
         return MedicationIntakeDetails.builder()
                 .id(medication.getId())
                 .createdDate(medication.getCreatedDate())

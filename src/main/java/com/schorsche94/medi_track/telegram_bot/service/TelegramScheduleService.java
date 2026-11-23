@@ -6,11 +6,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.schorsche94.medi_track.domain.enums.IntakeInstruction;
 import com.schorsche94.medi_track.domain.enums.ScheduleStatus;
 import com.schorsche94.medi_track.domain.model.Schedule;
+import com.schorsche94.medi_track.domain.mongodb.enums.IntakeStatus;
+import com.schorsche94.medi_track.schedule.MedicationIntakeDispatchJob;
 import com.schorsche94.medi_track.service.ScheduleService;
 import com.schorsche94.medi_track.telegram_bot.mapper.TelegramScheduleMapper;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
 import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
 import lombok.SneakyThrows;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -29,6 +33,8 @@ import static com.schorsche94.medi_track.telegram_bot.utils.TelegramUtils.sendMe
 
 @Service
 public class TelegramScheduleService {
+    private static final Logger log = LoggerFactory.getLogger(TelegramScheduleService.class);
+
 
     @Autowired
     private ScheduleService scheduleService;
@@ -357,6 +363,17 @@ public class TelegramScheduleService {
         }
 
         sb.append("\n");
+    }
+
+    @SneakyThrows
+    public void setIntakeMedicationStatus(Long chatId, String medicationIntakeId, IntakeStatus status, TelegramClient telegramClient) {
+        try {
+            scheduleService.setIntakeMedicationStatus(medicationIntakeId, chatId, status);
+            sendMessage(chatId, "Medication status saved!", telegramClient);
+        } catch (Exception e) {
+            sendMessage(chatId, "Medication status was not saved! " + e.getMessage(), telegramClient);
+            log.error("Failed to set intake medication status", e);
+        }
     }
 
 }

@@ -13,4 +13,8 @@ public interface MedicationIntakeRepository extends MongoRepository<MedicationIn
             IntakeStatus status,
             Instant scheduledAt
     );
+
+    MedicationIntakeDoc findByMedicationIdAndUserId(String medicationId, String userId);
+
+    MedicationIntakeDoc findByIdAndUserId(String medicationId, String userId);
 }

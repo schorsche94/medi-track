@@ -1,5 +1,6 @@
 package com.schorsche94.medi_track.telegram_bot;
 
+import com.schorsche94.medi_track.domain.mongodb.enums.IntakeStatus;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
 import com.schorsche94.medi_track.telegram_bot.model.MedicationConversation;
 import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
@@ -108,6 +109,20 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             Long medicationId = Long.valueOf(data.split(":")[1]);
             var conversation = telegramScheduleService.scheduleMedication(chatId, medicationId, telegramClient);
             scheduleConversations.put(chatId, conversation);
+
+            return;
+        }
+
+        if (data.startsWith("taken_medication:")) {
+            String medicationIntakeId = data.split(":")[1];
+            telegramScheduleService.setIntakeMedicationStatus(chatId, medicationIntakeId, IntakeStatus.TAKEN, telegramClient);
+
+            return;
+        }
+
+        if (data.startsWith("skipped_medication:")) {
+            String medicationIntakeId = data.split(":")[1];
+            telegramScheduleService.setIntakeMedicationStatus(chatId, medicationIntakeId, IntakeStatus.SKIPPED, telegramClient);
 
             return;
         }

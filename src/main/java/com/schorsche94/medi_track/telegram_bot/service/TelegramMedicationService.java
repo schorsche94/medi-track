@@ -298,7 +298,7 @@ public class TelegramMedicationService {
         return medicationConversation;
     }
 
-    public static void sendMedicationIntake(Long chatId, TelegramClient telegramClient, StringBuilder sb, Medication medication) throws TelegramApiException {
+    public static void sendMedicationIntake(String intakeId, Long chatId, TelegramClient telegramClient, StringBuilder sb, Medication medication) throws TelegramApiException {
         SendMessage sendMessage = SendMessage.builder()
                 .text(sb.toString())
                 .chatId(chatId)
@@ -307,8 +307,8 @@ public class TelegramMedicationService {
 
         List<InlineKeyboardRow> rowsInline = new ArrayList<>();
 
-        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Medication taken").callbackData("taken_medication:" + medication.getId()).build();
-        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Medication skipped").callbackData("skipped_medication:" + medication.getId()).build();
+        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Medication taken").callbackData("taken_medication:" + intakeId).build();
+        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Medication skipped").callbackData("skipped_medication:" + intakeId).build();
         InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
 
 //        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Medication postponed").callbackData("postponed_medication:" + medication.getId()).build();

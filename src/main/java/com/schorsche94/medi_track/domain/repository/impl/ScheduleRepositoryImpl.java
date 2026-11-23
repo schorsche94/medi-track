@@ -69,7 +69,8 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
         if (schedule.getMedicine() == null || schedule.getMedicine().getId() == null) {
             throw new IllegalArgumentException("A medication is required for a schedule");
         }
-        entity.setMedicine(medicationRepository.getReferenceById(schedule.getMedicine().getId()));
+        entity.setMedicine(medicationRepository.getReferenceById(
+                Long.valueOf(schedule.getMedicine().getId())));
         if (schedule.getUser() != null && schedule.getUser().getChatId() != null) {
             entity.setUser(userRepository.getReferenceById(schedule.getUser().getChatId()));
         }

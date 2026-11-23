@@ -28,6 +28,8 @@ public class MedicationIntake {
     private boolean publishedToKafka;
 
     private IntakeStatus status;
+    private Instant statusUpdatedAt;
+    private String statusUpdatedAtLocal;
 
     private Instant takenAt;
     private Instant postponedTo;
