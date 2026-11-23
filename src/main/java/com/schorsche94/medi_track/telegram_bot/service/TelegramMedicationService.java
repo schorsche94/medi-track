@@ -4,6 +4,7 @@ import com.schorsche94.medi_track.domain.model.Medication;
 import com.schorsche94.medi_track.service.MedicationCategoryService;
 import com.schorsche94.medi_track.service.MedicationFormService;
 import com.schorsche94.medi_track.service.MedicationService;
+import com.schorsche94.medi_track.service.ScheduleService;
 import com.schorsche94.medi_track.telegram_bot.mapper.TelegramMedicationMapper;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
 import com.schorsche94.medi_track.telegram_bot.model.MedicationConversation;
@@ -32,6 +33,9 @@ public class TelegramMedicationService {
 
     @Autowired
     private MedicationService medicationService;
+
+    @Autowired
+    private ScheduleService scheduleService;
 
     @Autowired
     private TelegramMedicationMapper mapper;
@@ -203,8 +207,8 @@ public class TelegramMedicationService {
         if (medications.isEmpty()) {
             sendMessage(chatId, "You don`t have medications for today.", telegramClient);
         } else {
-            StringBuilder sb = new StringBuilder();
-            sb.append("\uD83D\uDC8A Medication list for today:\n\n");
+//            StringBuilder sb = new StringBuilder();
+//            sb.append("\uD83D\uDC8A Medication list for today:\n\n");
 
             prepareMedicationList(chatId, telegramClient, medications);
         }

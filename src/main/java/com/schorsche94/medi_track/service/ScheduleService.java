@@ -1,15 +1,12 @@
 package com.schorsche94.medi_track.service;
 
 import com.schorsche94.medi_track.domain.model.Schedule;
-import com.schorsche94.medi_track.domain.mongodb.enums.IntakeStatus;
 
 import java.util.List;
 
 public interface ScheduleService {
 
     List<Schedule> getSchedules(Long chatId);
-
-    List<Schedule> getSchedulesForToday(Long chatId);
 
     Schedule createSchedule(Schedule schedule, Long chatId);
 
@@ -19,5 +16,4 @@ public interface ScheduleService {
 
     void deleteSchedule(String id, Long chatId) throws Exception;
 
-    void setIntakeMedicationStatus(String medicationIntakeId, Long chatId, IntakeStatus status);
 }

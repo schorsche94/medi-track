@@ -33,12 +33,6 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
 
     @Override
     @Transactional(readOnly = true)
-    public List<Schedule> getSchedulesForToday() {
-        return getSchedulesForDate(LocalDate.now(ZoneId.of("Europe/Chisinau")));
-    }
-
-    @Override
-    @Transactional(readOnly = true)
     public List<Schedule> getSchedulesForDate(LocalDate date) {
         return repository.findByDate(date).stream().map(mapper::toModel).toList();
     }

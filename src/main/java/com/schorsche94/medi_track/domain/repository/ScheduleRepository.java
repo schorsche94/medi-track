@@ -8,8 +8,6 @@ import java.util.List;
 public interface ScheduleRepository {
     List<Schedule> getSchedules(Long chatId);
 
-    List<Schedule> getSchedulesForToday();
-
     List<Schedule> getSchedulesForDate(LocalDate date);
 
     Schedule createSchedule(Schedule schedule);
