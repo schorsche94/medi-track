@@ -202,19 +202,6 @@ public class TelegramMedicationService {
     }
 
     @SneakyThrows
-    public void prepareAndSendTodayMedicationToTG(Long chatId, TelegramClient telegramClient) {
-        var medications = medicationService.getMedicationsForToday(chatId);
-        if (medications.isEmpty()) {
-            sendMessage(chatId, "You don`t have medications for today.", telegramClient);
-        } else {
-//            StringBuilder sb = new StringBuilder();
-//            sb.append("\uD83D\uDC8A Medication list for today:\n\n");
-
-            prepareMedicationList(chatId, telegramClient, medications);
-        }
-    }
-
-    @SneakyThrows
     public void prepareAndSendMedicationsToTG(Long chatId, TelegramClient telegramClient) {
         var medications = medicationService.getMedications(chatId);
         if (medications.isEmpty()) {

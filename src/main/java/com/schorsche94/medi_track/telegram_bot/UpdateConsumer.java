@@ -4,6 +4,7 @@ import com.schorsche94.medi_track.domain.mongodb.enums.IntakeStatus;
 import com.schorsche94.medi_track.telegram_bot.model.ConversationState;
 import com.schorsche94.medi_track.telegram_bot.model.MedicationConversation;
 import com.schorsche94.medi_track.telegram_bot.model.ScheduleConversation;
+import com.schorsche94.medi_track.telegram_bot.service.TelegramMedicationIntakeService;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramMedicationService;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramScheduleService;
 import com.schorsche94.medi_track.telegram_bot.service.TelegramUserService;
@@ -27,6 +28,9 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
     @Autowired
     private TelegramMedicationService telegramMedicationService;
+
+    @Autowired
+    private TelegramMedicationIntakeService telegramMedicationIntakeService;
 
     @Autowired
     private TelegramScheduleService telegramScheduleService;
@@ -72,7 +76,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
             sendMainMenu(chatId, telegramClient);
         } else if(messageText.equals("/show_today_medication_list") || messageText.equals("show_today_medication_list")) {
-            telegramMedicationService.prepareAndSendTodayMedicationToTG(chatId, telegramClient);
+            telegramMedicationIntakeService.prepareAndSendTodayMedicationToTG(chatId, telegramClient);
         } else if(messageText.equals("/menu_medication")) {
             sendMenuMedication(chatId, telegramClient);
         } else {
@@ -129,7 +133,7 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
 
         switch (data) {
             case "show_today_medication_list" -> {
-                telegramMedicationService.prepareAndSendTodayMedicationToTG(chatId, telegramClient);
+                telegramMedicationIntakeService.prepareAndSendTodayMedicationToTG(chatId, telegramClient);
             }
             case "show_all_medications" -> {
                 telegramMedicationService.prepareAndSendMedicationsToTG(chatId, telegramClient);

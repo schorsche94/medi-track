@@ -31,7 +31,7 @@ public class MedicationIntakeServiceImpl implements MedicationIntakeService {
         Instant end = today.plusDays(1).atStartOfDay(DEFAULT_ZONE).toInstant();
 
         return medicationIntakeMapper.toModelList(
-                intakeRepository.findByScheduledAtGreaterThanEqualAndScheduledAtLessThanAndUserId(
+                intakeRepository.findScheduledForUserBetween(
                         start, end, String.valueOf(chatId)));
     }
 

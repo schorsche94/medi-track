@@ -8,8 +8,6 @@ public interface MedicationService {
 
     List<Medication> getMedications(Long chatId);
 
-    List<Medication> getMedicationsForToday(Long chatId);
-
     Medication createMedication(Medication medication, Long chatId);
 
     Medication updateMedication(Medication medication, Long chatId);

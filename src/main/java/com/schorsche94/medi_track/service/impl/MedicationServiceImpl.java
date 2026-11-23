@@ -26,10 +26,6 @@ public class MedicationServiceImpl implements MedicationService {
         return repository.getMedications(chatId);
     }
 
-    @Override
-    public List<Medication> getMedicationsForToday(Long chatId) {
-        return List.of();
-    }
 
     @Override
     public Medication updateMedication(Medication medication, Long chatId) {
