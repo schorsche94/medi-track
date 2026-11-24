@@ -25,4 +25,6 @@ public interface ScheduleJpaRepository extends JpaRepository<ScheduleEntity, Lon
             """)
     List<ScheduleEntity> findByDate(@Param("date") LocalDate date);
 
+    List<ScheduleEntity> findByUserChatIdAndMedicineId(Long chatId, Long medicationId);
+
 }

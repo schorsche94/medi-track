@@ -41,4 +41,9 @@ public class ScheduleServiceImpl implements ScheduleService {
         repository.deleteSchedule(id);
     }
 
+    @Override
+    public List<Schedule> getSchedulesByMedicationId(Long chatId, Long medicationId) {
+        return repository.getSchedulesByMedicationId(chatId, medicationId);
+    }
+
 }

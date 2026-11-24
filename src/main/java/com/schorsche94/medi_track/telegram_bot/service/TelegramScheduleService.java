@@ -18,13 +18,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.InlineKeyboardMarkup;
 import org.telegram.telegrambots.meta.api.objects.replykeyboard.ReplyKeyboardRemove;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardButton;
+import org.telegram.telegrambots.meta.api.objects.replykeyboard.buttons.InlineKeyboardRow;
 import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 import org.telegram.telegrambots.meta.generics.TelegramClient;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeParseException;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuIntakeInstructionsForm;
 import static com.schorsche94.medi_track.telegram_bot.menu.TelegramMenu.sendMenuStatusForm;
@@ -266,11 +271,12 @@ public class TelegramScheduleService {
 
                 StringBuilder sb = new StringBuilder();
                 sb.append(scheduleConversation.getId() == null
-                        ? "\uD83D\uDC8A Schedule added:\n\n"
-                        : "\uD83D\uDC8A Schedule updated:\n\n");
+                        ? "\uD83D\uDDD3\uFE0F Schedule added:\n\n"
+                        : "\uD83D\uDDD3\uFE0F Schedule updated:\n\n");
 
                 prepareSchedule(sb, schedule);
 
+                hideKeyboard(chatId, "Schedule saved.", telegramClient);
                 sendSchedule(chatId, telegramClient, sb, schedule);
             }
 
@@ -281,32 +287,30 @@ public class TelegramScheduleService {
         }
     }
 
-    private void sendSchedule(Long chatId, TelegramClient telegramClient, StringBuilder sb, Schedule schedule) throws TelegramApiException {
+    @SneakyThrows
+    private void sendSchedule(Long chatId, TelegramClient telegramClient, StringBuilder sb, Schedule schedule) {
         SendMessage sendMessage = SendMessage.builder()
                 .text(sb.toString())
                 .chatId(chatId)
                 .build();
         sendMessage.setParseMode("HTML");
 
-//        List<InlineKeyboardRow> rowsInline = new ArrayList<>();
-//
-//        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Edit medication").callbackData("edit_medication:" + schedule.getId()).build();
-//        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Delete medication").callbackData("delete_medication:" + schedule.getId()).build();
-//        InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
-//
+        List<InlineKeyboardRow> rowsInline = new ArrayList<>();
+
+        InlineKeyboardButton button1 = InlineKeyboardButton.builder().text("Edit schedule").callbackData("edit_schedule:" + schedule.getId()).build();
+        InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Delete schedule").callbackData("delete_schedule:" + schedule.getId()).build();
+        InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
+
 //        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Schedule medication").callbackData("schedule_medication:" + schedule.getId()).build();
 //
 //        InlineKeyboardRow row2 = new InlineKeyboardRow(button3);
-//
-//        rowsInline.add(row1);
-//        rowsInline.add(row2);
-//
-//        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup(rowsInline);
-//        markupInline.setKeyboard(rowsInline);
-//        sendMessage.setReplyMarkup(markupInline);
-        ReplyKeyboardRemove keyboardRemove = new ReplyKeyboardRemove(true);
 
-        sendMessage.setReplyMarkup(keyboardRemove);
+        rowsInline.add(row1);
+//        rowsInline.add(row2);
+
+        InlineKeyboardMarkup markupInline = new InlineKeyboardMarkup(rowsInline);
+        markupInline.setKeyboard(rowsInline);
+        sendMessage.setReplyMarkup(markupInline);
 
         telegramClient.execute(sendMessage);
     }
@@ -379,4 +383,24 @@ public class TelegramScheduleService {
         }
     }
 
+    @SneakyThrows
+    public void prepareAndSendScheduleForMedicationToTG(Long chatId, Long medicationId, TelegramClient telegramClient) {
+        var schedules = scheduleService.getSchedulesByMedicationId(chatId, medicationId);
+        sendMessage(chatId, "\uD83D\uDDD3\uFE0F Schedule for <b>" + schedules.get(0).getMedicine().getName().toUpperCase() + "</b>", telegramClient);
+        for (Schedule schedule : schedules) {
+            StringBuilder sb = new StringBuilder();
+            prepareSchedule(sb, schedule);
+            sendSchedule(chatId, telegramClient, sb, schedule);
+        }
+    }
+
+    @SneakyThrows
+    public void deleteSchedule(Long chatId, Long scheduleId, TelegramClient telegramClient) {
+        try {
+            scheduleService.deleteSchedule(String.valueOf(scheduleId), chatId);
+            sendMessage(chatId, "Schedule was successfully deleted!", telegramClient);
+        } catch (Exception e) {
+            sendMessage(chatId, "Schedule was not deleted! " + e.getMessage(), telegramClient);
+        }
+    }
 }

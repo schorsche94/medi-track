@@ -17,4 +17,6 @@ public interface ScheduleRepository {
     Schedule getSchedule(String id);
 
     void deleteSchedule(String id);
+
+    List<Schedule> getSchedulesByMedicationId(Long chatId, Long medicationId);
 }

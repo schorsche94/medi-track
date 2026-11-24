@@ -16,4 +16,5 @@ public interface ScheduleService {
 
     void deleteSchedule(String id, Long chatId) throws Exception;
 
+    List<Schedule> getSchedulesByMedicationId(Long chatId, Long medicationId);
 }

@@ -45,7 +45,7 @@ public class TelegramMedicationIntakeService {
     }
 
     private static void prepareMedicationIntake(StringBuilder sb, MedicationIntake medicationIntake) {
-        sb.append("🔹 <b>")
+        sb.append("\uD83D\uDC8A <b>")
                 .append(medicationIntake.getMedication().getName())
                 .append("</b>\n");
 

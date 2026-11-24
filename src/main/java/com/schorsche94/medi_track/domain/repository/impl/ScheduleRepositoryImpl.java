@@ -12,7 +12,6 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 
 @Component
@@ -56,6 +55,11 @@ public class ScheduleRepositoryImpl implements ScheduleRepository {
     @Override
     public void deleteSchedule(String id) {
         repository.deleteById(Long.valueOf(id));
+    }
+
+    @Override
+    public List<Schedule> getSchedulesByMedicationId(Long chatId, Long medicationId) {
+        return repository.findByUserChatIdAndMedicineId(chatId, medicationId).stream().map(mapper::toModel).toList();
     }
 
     private ScheduleEntity toEntity(Schedule schedule) {

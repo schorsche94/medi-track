@@ -187,9 +187,10 @@ public class TelegramMedicationService {
         InlineKeyboardButton button2 = InlineKeyboardButton.builder().text("Delete medication").callbackData("delete_medication:" + medication.getId()).build();
         InlineKeyboardRow row1 = new InlineKeyboardRow(button1, button2);
 
-        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Schedule medication").callbackData("schedule_medication:" + medication.getId()).build();
+        InlineKeyboardButton button3 = InlineKeyboardButton.builder().text("Show existing schedules").callbackData("get_schedules:" + medication.getId()).build();
+        InlineKeyboardButton button4 = InlineKeyboardButton.builder().text("Schedule medication").callbackData("schedule_medication:" + medication.getId()).build();
 
-        InlineKeyboardRow row2 = new InlineKeyboardRow(button3);
+        InlineKeyboardRow row2 = new InlineKeyboardRow(button3, button4);
 
         rowsInline.add(row1);
         rowsInline.add(row2);
@@ -224,7 +225,7 @@ public class TelegramMedicationService {
     }
 
     private static void prepareMedication(StringBuilder sb, Medication medication) {
-        sb.append("🔹 <b>")
+        sb.append("\uD83D\uDC8A <b>")
                 .append(medication.getName())
                 .append("</b>\n");
 

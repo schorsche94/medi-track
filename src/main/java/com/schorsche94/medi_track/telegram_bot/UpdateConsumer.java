@@ -109,6 +109,20 @@ public class UpdateConsumer implements LongPollingSingleThreadUpdateConsumer {
             return;
         }
 
+        if (data.startsWith("get_schedules:")) {
+            Long medicationId = Long.valueOf(data.split(":")[1]);
+            telegramScheduleService.prepareAndSendScheduleForMedicationToTG(chatId, medicationId, telegramClient);
+
+            return;
+        }
+
+        if (data.startsWith("delete_schedule:")) {
+            Long scheduleId = Long.valueOf(data.split(":")[1]);
+            telegramScheduleService.deleteSchedule(chatId, scheduleId, telegramClient);
+
+            return;
+        }
+
         if (data.startsWith("schedule_medication:")) {
             Long medicationId = Long.valueOf(data.split(":")[1]);
             var conversation = telegramScheduleService.scheduleMedication(chatId, medicationId, telegramClient);
